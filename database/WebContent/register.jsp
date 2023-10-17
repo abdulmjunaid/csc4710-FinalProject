@@ -4,6 +4,12 @@
 <html>
 <head><title>Registration</title></head>
 <body>
+<style>
+  body {
+    background-color: #ADD8E6;
+    color: white; 
+}
+</style>
 	<div align="center">
 		<p> ${errorOne } </p>
 		<p> ${errorTwo } </p>
