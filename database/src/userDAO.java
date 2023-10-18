@@ -87,21 +87,21 @@ public class userDAO
         ResultSet resultSet = statement.executeQuery(sql);
          
         while (resultSet.next()) {
+        	String role = resultSet.getString("role");
             String email = resultSet.getString("email");
             String firstName = resultSet.getString("firstName");
             String lastName = resultSet.getString("lastName");
-            String password = resultSet.getString("password");
-            String birthday = resultSet.getString("birthday");
             String adress_street_num = resultSet.getString("adress_street_num"); 
             String adress_street = resultSet.getString("adress_street"); 
             String adress_city = resultSet.getString("adress_city"); 
             String adress_state = resultSet.getString("adress_state"); 
             String adress_zip_code = resultSet.getString("adress_zip_code"); 
-            int cash_bal = resultSet.getInt("cash_bal");
-            int PPS_bal = resultSet.getInt("PPS_bal");
+            String creditCard = resultSet.getString("creditCard");
+            String phoneNumber = resultSet.getString("phoneNumber");
+            String password = resultSet.getString("password");
 
              
-            user users = new user(email,firstName, lastName, password, birthday, adress_street_num,  adress_street,  adress_city,  adress_state,  adress_zip_code, cash_bal,PPS_bal);
+            user users = new user(role, email,firstName, lastName, adress_street_num,  adress_street,  adress_city,  adress_state,  adress_zip_code, creditCard, phoneNumber, password);
             listUser.add(users);
         }        
         resultSet.close();
@@ -117,20 +117,20 @@ public class userDAO
     
     public void insert(user users) throws SQLException {
     	connect_func("root","pass1234");         
-		String sql = "insert into User(email, firstName, lastName, password, birthday,adress_street_num, adress_street,adress_city,adress_state,adress_zip_code,cash_bal,PPS_bal) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,?)";
+		String sql = "insert into User(role,email,firstName,lastName,adress_street_num,adress_street,adress_city,adress_state,adress_zip_code,creditCard,phoneNumber,password) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,?)";
 		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
-			preparedStatement.setString(1, users.getEmail());
-			preparedStatement.setString(2, users.getFirstName());
-			preparedStatement.setString(3, users.getLastName());
-			preparedStatement.setString(4, users.getPassword());
-			preparedStatement.setString(5, users.getBirthday());
-			preparedStatement.setString(6, users.getAdress_street_num());		
-			preparedStatement.setString(7, users.getAdress_street());		
-			preparedStatement.setString(8, users.getAdress_city());		
-			preparedStatement.setString(9, users.getAdress_state());		
-			preparedStatement.setString(10, users.getAdress_zip_code());		
-			preparedStatement.setInt(11, users.getCash_bal());		
-			preparedStatement.setInt(12, users.getPPS_bal());		
+			preparedStatement.setString(1, users.getRole());
+			preparedStatement.setString(2, users.getEmail());
+			preparedStatement.setString(3, users.getFirstName());
+			preparedStatement.setString(4, users.getLastName());
+			preparedStatement.setString(5, users.getAdress_street_num());		
+			preparedStatement.setString(6, users.getAdress_street());		
+			preparedStatement.setString(7, users.getAdress_city());		
+			preparedStatement.setString(8, users.getAdress_state());		
+			preparedStatement.setString(9, users.getAdress_zip_code());		
+			preparedStatement.setString(10, users.getCreditCard());		
+			preparedStatement.setString(11, users.getPhoneNumber());	
+			preparedStatement.setString(12, users.getPassword());
 
 		preparedStatement.executeUpdate();
         preparedStatement.close();
@@ -149,22 +149,22 @@ public class userDAO
     }
      
     public boolean update(user users) throws SQLException {
-        String sql = "update User set firstName=?, lastName =?,password = ?,birthday=?,adress_street_num =?, adress_street=?,adress_city=?,adress_state=?,adress_zip_code=?, cash_bal=?, PPS_bal =? where email = ?";
+        String sql = "update User set role=?, firstName=?, lastName =?,adress_street_num =?, adress_street=?,adress_city=?,adress_state=?,adress_zip_code=?, creditCard=?, phoneNumber =?, password=? where email = ?";
         connect_func();
         
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, users.getEmail());
-		preparedStatement.setString(2, users.getFirstName());
-		preparedStatement.setString(3, users.getLastName());
-		preparedStatement.setString(4, users.getPassword());
-		preparedStatement.setString(5, users.getBirthday());
-		preparedStatement.setString(6, users.getAdress_street_num());		
-		preparedStatement.setString(7, users.getAdress_street());		
-		preparedStatement.setString(8, users.getAdress_city());		
-		preparedStatement.setString(9, users.getAdress_state());		
-		preparedStatement.setString(10, users.getAdress_zip_code());		
-		preparedStatement.setInt(11, users.getCash_bal());		
-		preparedStatement.setInt(12, users.getPPS_bal());
+        preparedStatement.setString(2, users.getRole());
+		preparedStatement.setString(3, users.getFirstName());
+		preparedStatement.setString(4, users.getLastName());
+		preparedStatement.setString(5, users.getAdress_street_num());		
+		preparedStatement.setString(6, users.getAdress_street());		
+		preparedStatement.setString(7, users.getAdress_city());		
+		preparedStatement.setString(8, users.getAdress_state());		
+		preparedStatement.setString(9, users.getAdress_zip_code());		
+		preparedStatement.setString(10, users.getCreditCard());		
+		preparedStatement.setString(11, users.getPhoneNumber());
+		preparedStatement.setString(12, users.getPassword());
          
         boolean rowUpdated = preparedStatement.executeUpdate() > 0;
         preparedStatement.close();
@@ -183,18 +183,18 @@ public class userDAO
         ResultSet resultSet = preparedStatement.executeQuery();
          
         if (resultSet.next()) {
+        	String role = resultSet.getString("role");
             String firstName = resultSet.getString("firstName");
             String lastName = resultSet.getString("lastName");
-            String password = resultSet.getString("password");
-            String birthday = resultSet.getString("birthday");
             String adress_street_num = resultSet.getString("adress_street_num"); 
             String adress_street = resultSet.getString("adress_street"); 
             String adress_city = resultSet.getString("adress_city"); 
             String adress_state = resultSet.getString("adress_state"); 
             String adress_zip_code = resultSet.getString("adress_zip_code"); 
-            int cash_bal = resultSet.getInt("cash_bal");
-            int PPS_bal = resultSet.getInt("PPS_bal");
-            user = new user(email, firstName, lastName, password, birthday, adress_street_num,  adress_street,  adress_city,  adress_state,  adress_zip_code,cash_bal,PPS_bal);
+            String creditCard = resultSet.getString("creditCard");
+            String phoneNumber = resultSet.getString("phoneNumber");
+            String password = resultSet.getString("password");
+            user = new user(role, email, firstName, lastName, adress_street_num,  adress_street,  adress_city,  adress_state,  adress_zip_code, creditCard, phoneNumber, password);
         }
          
         resultSet.close();
@@ -268,30 +268,14 @@ public class userDAO
     	connect_func();
         statement =  (Statement) connect.createStatement();
         
-        String[] INITIAL = {"drop database if exists testdb; ",
+        String[] INITIAL = {
+        					
+        					"drop database if exists testdb; ",
 					        "create database testdb; ",
 					        "use testdb; ",
-					        
+
 					        "drop table if exists User; ",
 					        ("CREATE TABLE if not exists User( " +
-					            "email VARCHAR(50) NOT NULL, " + 
-					            "firstName VARCHAR(10) NOT NULL, " +
-					            "lastName VARCHAR(10) NOT NULL, " +
-					            "password VARCHAR(20) NOT NULL, " +
-					            "birthday DATE NOT NULL, " +
-					            "adress_street_num VARCHAR(4) , "+ 
-					            "adress_street VARCHAR(30) , "+ 
-					            "adress_city VARCHAR(20)," + 
-					            "adress_state VARCHAR(2),"+ 
-					            "adress_zip_code VARCHAR(5),"+ 
-					            "cash_bal DECIMAL(13,2) DEFAULT 1000,"+ 
-					            "PPS_bal DECIMAL(13,2) DEFAULT 0,"+
-					            "PRIMARY KEY (email) "+"); "),
-					        
-
-					        "drop table if exists Client; ",
-					        ("CREATE TABLE if not exists Client( " +
-					        	"clientId INTEGER NOT NULL AUTO_INCREMENT, "+
 					        	"role VARCHAR(20) DEFAULT 'client', "+
 					        	"email VARCHAR(50) NOT NULL, "+
 					        	"firstName VARCHAR(50) NOT NULL, "+
@@ -304,23 +288,25 @@ public class userDAO
 					            "creditCard VARCHAR(20), "+
 					            "phoneNumber VARCHAR(10), "+
 					            "password VARCHAR(50) NOT NULL, "+
-					            "PRIMARY KEY(clientId) "+");"),
+					            "PRIMARY KEY(email) "+");"),
 					        
 					        "drop table if exists Quote; ",
 					        ("CREATE TABLE if not exists Quote( " +
 					        	"quoteId INTEGER NOT NULL AUTO_INCREMENT, "+
-					        	"clientId INTEGER NOT NULL, "+
+					        	"email VARCHAR(50) NOT NULL, "+
 					        	"note VARCHAR(255), "+
-					        	"status BOOLEAN NOT NULL DEFAULT false, "+
+					        	"dstatus BOOLEAN NOT NULL DEFAULT false, "+
+					        	"cstatus BOOLEAN NOT NULL DEFAULT false, "+
 					        	"PRIMARY KEY(quoteId), "+
-					        	"FOREIGN KEY (clientId) REFERENCES Client(clientId) "+");"),
+					        	"FOREIGN KEY (email) REFERENCES User(email) "+");"),
 					        
 					        "drop table if exists Bill; ",
 					        ("CREATE TABLE if not exists Bill( " +
 					        	"billId INTEGER NOT NULL AUTO_INCREMENT, "+
 					        	"quoteId INTEGER NOT NULL, "+
 					        	"note VARCHAR(255), "+
-					        	"status BOOLEAN NOT NULL DEFAULT false, "+
+					        	"dstatus BOOLEAN NOT NULL DEFAULT false, "+
+					        	"cstatus BOOLEAN NOT NULL DEFAULT false, "+
 					        	"PRIMARY KEY(billId), "+
 					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId) "+");"),
 					        
@@ -340,20 +326,9 @@ public class userDAO
         					};
 
         
-        String[] TUPLES = {("insert into User(email, firstName, lastName, password, birthday, adress_street_num, adress_street, adress_city, adress_state, adress_zip_code, cash_bal, PPS_bal)"+
-        			 "values ('susie@gmail.com', 'Susie ', 'Guzman', 'susie1234', '2000-06-27', '1234', 'whatever street', 'detroit', 'MI', '48202','1000', '0'),"+
-			    		 	"('don@gmail.com', 'Don', 'Cummings','don123', '1969-03-20', '1000', 'hi street', 'mama', 'MO', '12345','1000', '0'),"+
-			    	 	 	"('margarita@gmail.com', 'Margarita', 'Lawson','margarita1234', '1980-02-02', '1234', 'ivan street', 'tata','CO','12561','1000', '0'),"+
-			    		 	"('jo@gmail.com', 'Jo', 'Brady','jo1234', '2002-02-02', '3214','marko street', 'brat', 'DU', '54321','1000', '0'),"+
-			    		 	"('wallace@gmail.com', 'Wallace', 'Moore','wallace1234', '1971-06-15', '4500', 'frey street', 'sestra', 'MI', '48202','1000', '0'),"+
-			    		 	"('amelia@gmail.com', 'Amelia', 'Phillips','amelia1234', '2000-03-14', '1245', 'm8s street', 'baka', 'IL', '48000','1000', '0'),"+
-			    			"('sophie@gmail.com', 'Sophie', 'Pierce','sophie1234', '1999-06-15', '2468', 'yolos street', 'ides', 'CM', '24680','1000', '0'),"+
-			    			"('angelo@gmail.com', 'Angelo', 'Francis','angelo1234', '2021-06-14', '4680', 'egypt street', 'lolas', 'DT', '13579','1000', '0'),"+
-			    			"('rudy@gmail.com', 'Rudy', 'Smith','rudy1234', '1706-06-05', '1234', 'sign street', 'samo ne tu','MH', '09876','1000', '0'),"+
-			    			"('jeannette@gmail.com', 'Jeannette ', 'Stone','jeannette1234', '2001-04-24', '0981', 'snoop street', 'kojik', 'HW', '87654','1000', '0'),"+
-			    			"('root', 'default', 'default','pass1234', '2002-02-03', '0000', 'Default', 'Default', '0', '00000','1000','1000000000');"),
-        					
-        					("insert into Client(role, email, firstName, lastName, adress_street_num, adress_street, adress_city, adress_state, adress_zip_code, creditCard, phoneNumber, password)"+
+        String[] TUPLES = {
+        		
+        					("insert into User(role, email, firstName, lastName, adress_street_num, adress_street, adress_city, adress_state, adress_zip_code, creditCard, phoneNumber, password)"+
         			 "values ('david', 'davidsmith@treecutters.com', 'David', 'Smith', '1234', 'main st', 'Detroit', 'MI', '48202', '378282246310005', '3130233245', 'david1234'), "+
         					"('client', 'tatum@gmail.com', 'Tatum', 'Brandt', '2341', 'elm st', 'Detroit', 'MI', '48201', '312382246310005', '3120433265', 'tatum1234'), "+
         					"('client', 'alvaro@gmail.com', 'Alvaro', 'Oliver', '9982', 'west rd', 'Dearborn', 'MI', '48301', '234382246399805', '3764533265', 'alvaro1234'), "+
@@ -365,29 +340,29 @@ public class userDAO
         			 		"('client', 'sonny@gmail.com', 'Sonny', 'Vu', '5876', 'south st', 'Troy', 'MI', '48222', '312382987310005', '7134533265', 'sonny1234'), "+
         					"('root', 'root', 'default', 'default', '0000', 'default', 'default', '00', '00000', '000000000000000', '0000000000', 'pass1234'); "),
         					
-        					("insert into Quote(clientId, note, status)"+
-        			 "values (2, 'abc', false),"+
-        					"(3, 'def', true),"+
-        					"(4, 'ghi', true),"+
-        					"(4, 'jkl', false),"+
-        					"(6, 'mno', false),"+
-        					"(7, 'pqr', false),"+
-        					"(6, 'stu', true),"+
-        					"(3, 'vwx', false),"+
-        					"(9, 'yza', false),"+
-        					"(6, 'bcd', true);"),
+        					("insert into Quote(email, note, dstatus, cstatus)"+
+        			 "values ('tatum@gmail.com', 'abc', false, false),"+
+        					"('alvaro@gmail.com', 'def', true, true),"+
+        					"('stella@gmail.com', 'ghi', true, true),"+
+        					"('stella@gmail.com', 'jkl', false, true),"+
+        					"('andi@gmail.com', 'mno', false, false),"+
+        					"('reid@gmail.com', 'pqr', true, false),"+
+        					"('andi@gmail.com', 'stu', true, true),"+
+        					"('alvaro@gmail.com', 'vwx', false, false),"+
+        					"('sonny@gmail.com', 'yza', false, false),"+
+        					"('andi@gmail.com', 'bcd', true, true);"),
 
-        					("insert into Bill(quoteId, note, status)"+
-					"values (1, 'abc', false),"+
-							"(2, 'def', true),"+
-							"(3, 'ghi', true),"+
-							"(4, 'jkl', false),"+
-							"(5, 'mno', false),"+
-							"(6, 'pqr', false),"+
-							"(7, 'stu', true),"+
-							"(8, 'vwx', false),"+
-							"(9, 'yza', false),"+
-							"(10, 'bcd', true);"),        					
+        					("insert into Bill(quoteId, note, dstatus, cstatus)"+
+					"values (1, 'abc', false, false),"+
+							"(2, 'def', true, true),"+
+							"(3, 'ghi', true, true),"+
+							"(4, 'jkl', false, true),"+
+							"(5, 'mno', true, false),"+
+							"(6, 'pqr', false,false),"+
+							"(7, 'stu', true, true),"+
+							"(8, 'vwx', true, false),"+
+							"(9, 'yza', false, true),"+
+							"(10, 'bcd', true, true);"),        					
 
         					
         					("insert into Tree(quoteId, size, height, distance)"+
