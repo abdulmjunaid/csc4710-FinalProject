@@ -7,6 +7,13 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Root page</title>
+<style>
+  body {
+    background-color: #ADD8E6;
+    color: white; 
+
+  }
+</style>
 </head>
 <body>
 
@@ -25,7 +32,7 @@
                 <th>Email</th>
                 <th>First name</th>
                 <th>Last name</th>
-                <th>Adress</th>
+                <th>Address</th>
                 <th>Password</th>
                 <th>Birthday</th>
                 <th>cash_bal($)</th>

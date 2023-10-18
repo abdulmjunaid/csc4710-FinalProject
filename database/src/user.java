@@ -1,5 +1,4 @@
-//djfklsdjf
-public class user
+public class user 
 {
 		protected String password;
 	 	protected String email;

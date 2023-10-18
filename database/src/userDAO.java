@@ -271,6 +271,7 @@ public class userDAO
         String[] INITIAL = {"drop database if exists testdb; ",
 					        "create database testdb; ",
 					        "use testdb; ",
+					        
 					        "drop table if exists User; ",
 					        ("CREATE TABLE if not exists User( " +
 					            "email VARCHAR(50) NOT NULL, " + 
@@ -285,10 +286,62 @@ public class userDAO
 					            "adress_zip_code VARCHAR(5),"+ 
 					            "cash_bal DECIMAL(13,2) DEFAULT 1000,"+ 
 					            "PPS_bal DECIMAL(13,2) DEFAULT 0,"+
-					            "PRIMARY KEY (email) "+"); ")
+					            "PRIMARY KEY (email) "+"); "),
+					        
+
+					        "drop table if exists Client; ",
+					        ("CREATE TABLE if not exists Client( " +
+					        	"clientId INTEGER NOT NULL AUTO_INCREMENT, "+
+					        	"role VARCHAR(20) DEFAULT 'client', "+
+					        	"email VARCHAR(50) NOT NULL, "+
+					        	"firstName VARCHAR(50) NOT NULL, "+
+					        	"lastName VARCHAR(50) NOT NULL, "+
+					        	"adress_street_num VARCHAR(4), "+ 
+					            "adress_street VARCHAR(30), "+ 
+					            "adress_city VARCHAR(20), " + 
+					            "adress_state VARCHAR(2), "+ 
+					            "adress_zip_code VARCHAR(5), "+ 
+					            "creditCard VARCHAR(20), "+
+					            "phoneNumber VARCHAR(10), "+
+					            "password VARCHAR(50) NOT NULL, "+
+					            "PRIMARY KEY(clientId) "+");"),
+					        
+					        "drop table if exists Quote; ",
+					        ("CREATE TABLE if not exists Quote( " +
+					        	"quoteId INTEGER NOT NULL AUTO_INCREMENT, "+
+					        	"clientId INTEGER NOT NULL, "+
+					        	"note VARCHAR(255), "+
+					        	"status BOOLEAN NOT NULL DEFAULT false, "+
+					        	"PRIMARY KEY(quoteId), "+
+					        	"FOREIGN KEY (clientId) REFERENCES Client(clientId) "+");"),
+					        
+					        "drop table if exists Bill; ",
+					        ("CREATE TABLE if not exists Bill( " +
+					        	"billId INTEGER NOT NULL AUTO_INCREMENT, "+
+					        	"quoteId INTEGER NOT NULL, "+
+					        	"note VARCHAR(255), "+
+					        	"status BOOLEAN NOT NULL DEFAULT false, "+
+					        	"PRIMARY KEY(billId), "+
+					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId) "+");"),
+					        
+					        "drop table if exists Tree; ",
+					        ("CREATE TABLE if not exists tree( " +
+					        	"treeId INTEGER NOT NULL AUTO_INCREMENT, "+
+					        	"quoteId INTEGER NOT NULL, "+
+					        	"firstPic VARCHAR(255), "+
+					        	"secondPic VARCHAR(255), "+
+					        	"thirdPic VARCHAR(255), "+
+					        	"size INTEGER NOT NULL, "+
+					        	"height INTEGER NOT NULL, "+
+					        	"distance INTEGER NOT NULL, "+
+					        	"PRIMARY KEY(treeId), "+
+					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId) "+");"),
+					        
         					};
+
+        
         String[] TUPLES = {("insert into User(email, firstName, lastName, password, birthday, adress_street_num, adress_street, adress_city, adress_state, adress_zip_code, cash_bal, PPS_bal)"+
-        			"values ('susie@gmail.com', 'Susie ', 'Guzman', 'susie1234', '2000-06-27', '1234', 'whatever street', 'detroit', 'MI', '48202','1000', '0'),"+
+        			 "values ('susie@gmail.com', 'Susie ', 'Guzman', 'susie1234', '2000-06-27', '1234', 'whatever street', 'detroit', 'MI', '48202','1000', '0'),"+
 			    		 	"('don@gmail.com', 'Don', 'Cummings','don123', '1969-03-20', '1000', 'hi street', 'mama', 'MO', '12345','1000', '0'),"+
 			    	 	 	"('margarita@gmail.com', 'Margarita', 'Lawson','margarita1234', '1980-02-02', '1234', 'ivan street', 'tata','CO','12561','1000', '0'),"+
 			    		 	"('jo@gmail.com', 'Jo', 'Brady','jo1234', '2002-02-02', '3214','marko street', 'brat', 'DU', '54321','1000', '0'),"+
@@ -298,7 +351,58 @@ public class userDAO
 			    			"('angelo@gmail.com', 'Angelo', 'Francis','angelo1234', '2021-06-14', '4680', 'egypt street', 'lolas', 'DT', '13579','1000', '0'),"+
 			    			"('rudy@gmail.com', 'Rudy', 'Smith','rudy1234', '1706-06-05', '1234', 'sign street', 'samo ne tu','MH', '09876','1000', '0'),"+
 			    			"('jeannette@gmail.com', 'Jeannette ', 'Stone','jeannette1234', '2001-04-24', '0981', 'snoop street', 'kojik', 'HW', '87654','1000', '0'),"+
-			    			"('root', 'default', 'default','pass1234', '2002-02-03', '0000', 'Default', 'Default', '0', '00000','1000','1000000000');")
+			    			"('root', 'default', 'default','pass1234', '2002-02-03', '0000', 'Default', 'Default', '0', '00000','1000','1000000000');"),
+        					
+        					("insert into Client(role, email, firstName, lastName, adress_street_num, adress_street, adress_city, adress_state, adress_zip_code, creditCard, phoneNumber, password)"+
+        			 "values ('david', 'davidsmith@treecutters.com', 'David', 'Smith', '1234', 'main st', 'Detroit', 'MI', '48202', '378282246310005', '3130233245', 'david1234'), "+
+        					"('client', 'tatum@gmail.com', 'Tatum', 'Brandt', '2341', 'elm st', 'Detroit', 'MI', '48201', '312382246310005', '3120433265', 'tatum1234'), "+
+        					"('client', 'alvaro@gmail.com', 'Alvaro', 'Oliver', '9982', 'west rd', 'Dearborn', 'MI', '48301', '234382246399805', '3764533265', 'alvaro1234'), "+
+        					"('client', 'stella@gmail.com', 'Stella', 'Marquez', '7485', 'oak ave', 'Detroit', 'MI', '48202', '712987246310325', '1320439295', 'stella1234'), "+
+        					"('client', 'ray@gmail.com', 'Ray', 'Gonzalez', '2783', 'ridge rd', 'Novi', 'MI', '49810', '612399846310305', '3920453263', 'ray1234'), "+
+        					"('client', 'andi@gmail.com', 'Andi', 'Carson', '8349', 'ford rd', 'Detroit', 'MI', '48203', '712389946410005', '2324439265', 'andi1234'), "+
+        					"('client', 'reid@gmail.com', 'Reid', 'Stone', '7485', 'noth ave', 'Detroit', 'MI', '48202', '417882988940005', '7344598260', 'reid1234'), "+
+        					"('client', 'margo@gmail.com', 'Margo', 'Dunn', '8923', 'main rd', 'Troy', 'MI', '48222', '389382987990305', '7345533005', 'margo1234'), "+
+        			 		"('client', 'sonny@gmail.com', 'Sonny', 'Vu', '5876', 'south st', 'Troy', 'MI', '48222', '312382987310005', '7134533265', 'sonny1234'), "+
+        					"('root', 'root', 'default', 'default', '0000', 'default', 'default', '00', '00000', '000000000000000', '0000000000', 'pass1234'); "),
+        					
+        					("insert into Quote(clientId, note, status)"+
+        			 "values (2, 'abc', false),"+
+        					"(3, 'def', true),"+
+        					"(4, 'ghi', true),"+
+        					"(4, 'jkl', false),"+
+        					"(6, 'mno', false),"+
+        					"(7, 'pqr', false),"+
+        					"(6, 'stu', true),"+
+        					"(3, 'vwx', false),"+
+        					"(9, 'yza', false),"+
+        					"(6, 'bcd', true);"),
+
+        					("insert into Bill(quoteId, note, status)"+
+					"values (1, 'abc', false),"+
+							"(2, 'def', true),"+
+							"(3, 'ghi', true),"+
+							"(4, 'jkl', false),"+
+							"(5, 'mno', false),"+
+							"(6, 'pqr', false),"+
+							"(7, 'stu', true),"+
+							"(8, 'vwx', false),"+
+							"(9, 'yza', false),"+
+							"(10, 'bcd', true);"),        					
+
+        					
+        					("insert into Tree(quoteId, size, height, distance)"+
+        			"values (1, 2, 5, 4), "+
+        					"(2, 3, 3, 7), "+
+        					"(3, 4, 4, 4), "+
+        					"(4, 5, 5, 2), "+
+        					"(5, 7, 8, 4), "+
+        					"(6, 2, 2, 7), "+
+        					"(7, 8, 3, 8), "+
+        					"(8, 3, 6, 3), "+
+        					"(9, 8, 9, 2), "+
+        					"(10, 9, 2, 8); ")
+        			
+        								 
 			    			};
         
         //for loop to put these in database

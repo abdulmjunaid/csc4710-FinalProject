@@ -7,13 +7,6 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Activity page</title>
-<style>
-  body {
-    background-color: #ADD8E6;
-    color: white; 
-
-  }
-</style>
 </head>
 
 <center><h1>Welcome! You have been successfully logged in</h1> </center>
