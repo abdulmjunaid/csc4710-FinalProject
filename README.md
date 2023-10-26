@@ -20,8 +20,8 @@ Instructions to install, configure, and run:
 3.Configure the MySQL database:
   -Install and open MySQL Workbench.
   -Use the database created and configure the necessary tables.
-4.Configure the project:
 
+4.Configure the project:
   -Right-click on your project in Eclipse.
   -Go to Properties > Java Build Path.
   -Ensure all necessary libraries and dependencies are added.
