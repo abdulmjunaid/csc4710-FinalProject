@@ -288,26 +288,60 @@ public class userDAO
 					            "creditCard VARCHAR(20), "+
 					            "phoneNumber VARCHAR(10), "+
 					            "password VARCHAR(50) NOT NULL, "+
+					            "CHECK (role in ('client', 'david', 'root')), "+
 					            "PRIMARY KEY(email) "+");"),
 					        
 					        "drop table if exists Quote; ",
 					        ("CREATE TABLE if not exists Quote( " +
 					        	"quoteId INTEGER NOT NULL AUTO_INCREMENT, "+
 					        	"email VARCHAR(50) NOT NULL, "+
+					        	"price DOUBLE NOT NULL, "+
+					        	"timeFrame VARCHAR(255) NOT NULL, "+
 					        	"note VARCHAR(255), "+
-					        	"dstatus BOOLEAN NOT NULL DEFAULT false, "+
-					        	"cstatus BOOLEAN NOT NULL DEFAULT false, "+
+					        	"status VARCHAR(8) NOT NULL DEFAULT 'open', "+
+					        	"CHECK (status in ('open', 'accepted', 'rejected')), "+
 					        	"PRIMARY KEY(quoteId), "+
+					        	"FOREIGN KEY (email) REFERENCES User(email) "+");"),
+					        
+					        "drop table if exists QuoteHistory; ",
+					        ("CREATE TABLE if not exists QuoteHistory( " +
+					        	"time DATETIME NOT NULL, "+
+					        	"quoteId INTEGER NOT NULL, "+
+					        	"email VARCHAR(50) NOT NULL, "+
+					        	"price DOUBLE NOT NULL, "+
+					        	"timeFrame VARCHAR(255) NOT NULL, "+
+					        	"note VARCHAR(255), "+
+					        	"status VARCHAR(8) NOT NULL DEFAULT 'open', "+
+					        	"CHECK (status in ('open', 'accepted', 'rejected')), "+
+					        	"PRIMARY KEY(time, quoteId), "+
+					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId), "+
 					        	"FOREIGN KEY (email) REFERENCES User(email) "+");"),
 					        
 					        "drop table if exists Bill; ",
 					        ("CREATE TABLE if not exists Bill( " +
 					        	"billId INTEGER NOT NULL AUTO_INCREMENT, "+
 					        	"quoteId INTEGER NOT NULL, "+
+					        	"email VARCHAR(50) NOT NULL, "+
+					        	"price DOUBLE NOT NULL, "+
 					        	"note VARCHAR(255), "+
-					        	"dstatus BOOLEAN NOT NULL DEFAULT false, "+
-					        	"cstatus BOOLEAN NOT NULL DEFAULT false, "+
+					        	"status VARCHAR(8) NOT NULL DEFAULT 'open', "+
+					        	"CHECK (status in ('open', 'accepted', 'rejected')), "+
 					        	"PRIMARY KEY(billId), "+
+					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId) "+");"),
+					        
+					        "drop table if exists BillHistory; ",
+					        ("CREATE TABLE if not exists BillHistory( " +
+					        	"time DATETIME NOT NULL, "+
+					        	"billId INTEGER NOT NULL, "+
+					        	"quoteId INTEGER NOT NULL, "+
+					        	"email VARCHAR(50) NOT NULL, "+
+					        	"price DOUBLE NOT NULL, "+
+					        	"note VARCHAR(255), "+
+					        	"status VARCHAR(8) NOT NULL DEFAULT 'open', "+
+					        	"CHECK (status in ('open', 'accepted', 'rejected')), "+
+					        	"PRIMARY KEY(time, billId), "+
+					        	"FOREIGN KEY (email) REFERENCES User(email), "+
+					        	"FOREIGN KEY (billId) REFERENCES Bill(billId), "+
 					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId) "+");"),
 					        
 					        "drop table if exists Tree; ",
@@ -340,33 +374,81 @@ public class userDAO
         			 		"('client', 'sonny@gmail.com', 'Sonny', 'Vu', '5876', 'south st', 'Troy', 'MI', '48222', '312382987310005', '7134533265', 'sonny1234'), "+
         					"('root', 'root', 'default', 'default', '0000', 'default', 'default', '00', '00000', '000000000000000', '0000000000', 'pass1234'); "),
         					
-        					("insert into Quote(email, note, dstatus, cstatus)"+
-        			 "values ('tatum@gmail.com', 'abc', false, false),"+
-        					"('alvaro@gmail.com', 'def', true, true),"+
-        					"('stella@gmail.com', 'ghi', true, true),"+
-        					"('stella@gmail.com', 'jkl', false, true),"+
-        					"('andi@gmail.com', 'mno', false, false),"+
-        					"('reid@gmail.com', 'pqr', true, false),"+
-        					"('andi@gmail.com', 'stu', true, true),"+
-        					"('alvaro@gmail.com', 'vwx', false, false),"+
-        					"('sonny@gmail.com', 'yza', false, false),"+
-        					"('andi@gmail.com', 'bcd', true, true);"),
+        					("insert into Quote(email, price, timeFrame, note, status)"+
+        			 "values ('tatum@gmail.com', 300, 'monday', 'abc', 'accepted'),"+
+        					"('alvaro@gmail.com', 400, 'tuesday and thursday', 'def', 'accepted'),"+
+        					"('stella@gmail.com', 200, 'friday', 'ghi', 'rejected'),"+
+        					"('stella@gmail.com', 200, 'tuesday', 'jkl', 'open'),"+
+        					"('andi@gmail.com', 400, 'thursday and friday', 'mno', 'rejected'),"+
+        					"('reid@gmail.com', 300, 'tuesday', 'pqr', 'accepted'),"+
+        					"('andi@gmail.com', 400, 'monday', 'stu', 'rejected'),"+
+        					"('alvaro@gmail.com', 200, 'monday', 'vwx', 'open'),"+
+        					"('sonny@gmail.com', 300, 'tuesday', 'yza', 'accepted'),"+
+        					"('sonny@gmail.com', 600, 'tuesday and wednesday', 'yza', 'accepted'),"+
+        					"('margo@gmail.com', 300, 'tuesday', 'yza', 'accepted'),"+
+        					"('ray@gmail.com', 200, 'wednesday', 'yza', 'accepted'),"+
+        					"('alvaro@gmail.com', 250, 'thursday', 'def', 'accepted'),"+
+        					"('tatum@gmail.com', 250, 'friday', 'def', 'accepted'),"+
+        					"('andi@gmail.com', 200, 'friday', 'bcd', 'accepted');"),
+        					
+        					("insert into QuoteHistory(time, quoteId, email, price, timeFrame, note, status)"+
+        			 "values ('2023-09-29 08:03:03', 1,'davidsmith@treecutters.com', 400, 'monday', 'abc', 'open'),"+
+        					"('2023-09-30 09:25:00', 1,'tatum@gmail.com', 300, 'tuesday', 'def', 'open'),"+
+        					"('2023-10-02 02:32:21', 1,'davidsmith@treecutters.com', 350, 'tuesday', 'ghi', 'open'),"+
+        					"('2023-10-03 18:54:45', 1,'tatum@gmail.com', 350, 'tuesday', 'jkl', 'accepted'),"+
+        					
+        					"('2023-10-05 12:53:12', 2,'davidsmith@treecutters.com', 400, 'thursday and friday', 'mno', 'open'),"+
+        					"('2023-10-07 09:43:12', 2,'alvaro@gmail.com', 400, 'thursday and friday', 'pqr', 'accepted'),"+
+        					
+        					"('2023-10-12 12:56:23', 3,'davidsmith@treecutters.com', 400, 'monday', 'stu', 'open'),"+
+        					"('2023-10-12 15:23:43', 3,'stella@gmail.com', 200, 'monday', 'vwx', 'open'),"+
+        					"('2023-10-14 09:45:45', 3,'davidsmith@treecutters.com', 400, 'monday', 'yza', 'open'),"+
+        					"('2023-10-17 07:29:20', 3,'stella@gmail.com', 400, 'tuesday and monday', 'yza', 'rejected'),"+
+        					
+        					"('2023-10-18 18:43:34', 4,'davidsmith@treecutters.com', 400, 'tuesday', 'yza', 'open'),"+
+        					"('2023-10-19 16:33:03', 4,'stella@gmail.com', 300, 'wednesday', 'yza', 'open'),"+
+        					
+        					"('2023-10-23 04:52:12', 5,'davidsmith@treecutters.com', 500, 'thursday', 'def', 'open'),"+
+        					"('2023-10-24 09:09:23', 5,'andi@gmail.com', 300, 'friday', 'def', 'open'),"+
+        					"('2023-10-24 10:23:17', 5,'davidsmith@treecutters.com', 450, 'friday', 'def', 'open'),"+
+        					"('2023-10-26 12:12:12', 5,'andi@gmail.com', 450, 'friday', 'bcd', 'rejected');"),
 
-        					("insert into Bill(quoteId, note, dstatus, cstatus)"+
-					"values (1, 'abc', false, false),"+
-							"(2, 'def', true, true),"+
-							"(3, 'ghi', true, true),"+
-							"(4, 'jkl', false, true),"+
-							"(5, 'mno', true, false),"+
-							"(6, 'pqr', false,false),"+
-							"(7, 'stu', true, true),"+
-							"(8, 'vwx', true, false),"+
-							"(9, 'yza', false, true),"+
-							"(10, 'bcd', true, true);"),        					
+        					("insert into Bill(quoteId, email, price, note, status)"+
+					 "values (1, 'tatum@gmail.com', 300, 'abc', 'accepted'),"+
+							"(2, 'alvaro@gmail.com', 400, 'def', 'accepted'),"+
+							"(6, 'reid@gmail.com', 300, 'pqr', 'open'),"+
+							"(9, 'sonny@gmail.com', 300, 'yza', 'accepted'),"+
+							"(15, 'andi@gmail.com', 200, 'bcd', 'rejected'),"+
+							"(10, 'sonny@gmail.com', 600, 'yza', 'accepted'),"+
+							"(11, 'margo@gmail.com', 300, 'yza', 'rejected'),"+
+							"(12, 'ray@gmail.com', 200, 'yza', 'accepted'),"+
+							"(13, 'alvaro@gmail.com', 250, 'def', 'open'),"+
+							"(14, 'tatum@gmail.com', 250, 'def', 'accepted');"),        					
 
+        					("insert into BillHistory(time, billId, quoteId, email, price, note, status)"+
+        			 "values ('2023-10-04 08:03:03', 1, 1,'davidsmith@treecutters.com', 400, 'abc', 'open'),"+
+        					"('2023-10-05 09:25:00', 1, 1,'tatum@gmail.com', 300, 'def', 'open'),"+
+        					"('2023-10-06 02:32:21', 1, 1,'davidsmith@treecutters.com', 350, 'ghi', 'open'),"+
+        					"('2023-10-06 18:54:45', 1, 1,'tatum@gmail.com', 350, 'jkl', 'accepted'),"+
+        					
+        					"('2023-10-08 12:53:12', 2, 2,'davidsmith@treecutters.com', 400, 'mno', 'open'),"+
+        					"('2023-10-09 09:43:12', 2, 2,'alvaro@gmail.com', 400, 'pqr', 'accepted'),"+
+        					
+        					"('2023-10-18 12:56:23', 3, 6,'davidsmith@treecutters.com', 400, 'stu', 'open'),"+
+        					"('2023-10-18 15:23:43', 3, 6,'reid@gmail.com', 200, 'vwx', 'open'),"+
+        					"('2023-10-19 09:45:45', 3, 6,'davidsmith@treecutters.com', 400, 'yza', 'open'),"+
+        					"('2023-10-20 07:29:20', 3, 6,'reid@gmail.com', 350, 'yza', 'open'),"+
+        					
+        					"('2023-10-20 18:43:34', 4, 9,'davidsmith@treecutters.com', 400, 'yza', 'open'),"+
+        					"('2023-10-21 16:33:03', 4, 9,'sonny@gmail.com', 300, 'yza', 'accepted'),"+
+        					
+        					"('2023-10-26 12:52:12', 5, 15,'davidsmith@treecutters.com', 500, 'def', 'open'),"+
+        					"('2023-10-26 13:09:23', 5, 15,'andi@gmail.com', 300, 'def', 'open'),"+
+        					"('2023-10-26 13:23:17', 5, 15,'davidsmith@treecutters.com', 450, 'def', 'open'),"+
+        					"('2023-10-26 14:12:12', 5, 15,'andi@gmail.com', 450, 'bcd', 'rejected');"),      					
         					
         					("insert into Tree(quoteId, size, height, distance)"+
-        			"values (1, 2, 5, 4), "+
+        			 "values (1, 2, 5, 4), "+
         					"(2, 3, 3, 7), "+
         					"(3, 4, 4, 4), "+
         					"(4, 5, 5, 2), "+
