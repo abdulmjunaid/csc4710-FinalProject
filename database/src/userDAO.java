@@ -239,7 +239,7 @@ public class userDAO
         return quoteId;
     }
     
-    public quote getRequest(int quoteId) throws SQLException {
+    public quote getQuote(int quoteId) throws SQLException {
     	quote quotes = null;
         String sql = "SELECT * FROM Quote WHERE quoteId = ?";
          
@@ -266,6 +266,7 @@ public class userDAO
         return quotes;
     }
     
+    
     public void denyQuote(quote quotes, String currentUser) throws SQLException {
     	String sql = "update Quote set status=?, note=?, time=? where quoteId=?";
         connect_func();
@@ -285,6 +286,32 @@ public class userDAO
 		preparedStatement.setDouble(3, quotes.getPrice());
 		preparedStatement.setString(4, quotes.getTimeFrame());
 		preparedStatement.setString(5, "Rejected by " + currentUser);
+		preparedStatement.setString(6, quotes.getTime());
+		preparedStatement.setInt(7, quotes.getQuoteId());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void acceptQuote(quote quotes, String currentUser) throws SQLException {
+    	String sql = "update Quote set status=?, note=?, time=? where quoteId=?";
+        connect_func();
+        
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "accepted");
+        preparedStatement.setString(2, "accepted by " + currentUser);
+        preparedStatement.setString(3, quotes.getTime());
+        preparedStatement.setInt(4, quotes.getQuoteId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();    
+        
+        sql = "insert into QuoteHistory(email, status, price, timeFrame, note, time, quoteId) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, currentUser);
+		preparedStatement.setString(2, "accepted");
+		preparedStatement.setDouble(3, quotes.getPrice());
+		preparedStatement.setString(4, quotes.getTimeFrame());
+		preparedStatement.setString(5, "accepted by " + currentUser);
 		preparedStatement.setString(6, quotes.getTime());
 		preparedStatement.setInt(7, quotes.getQuoteId());
 

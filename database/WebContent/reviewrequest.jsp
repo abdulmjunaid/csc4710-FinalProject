@@ -80,12 +80,12 @@
     <script>
 	    function initial1()
 		{
-			document.getElementById('request').action = "denyRequest"; 
+			document.getElementById('request').action = "denyQuote"; 
 			console.log("accept");
 		}
 		function initial()
 		{
-			document.getElementById('request').action = "initialQuote"; 
+			document.getElementById('request').action = "sendQuote"; 
 			console.log("accept");
 		}
 	</script>

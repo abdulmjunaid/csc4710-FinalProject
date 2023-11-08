@@ -44,7 +44,7 @@
 			</table>
 	</form>
 	
-    <table>
+    <table id=openQuotes name=openQuotes>
     <caption><h2>List of Open Quotes</h2></caption>
         <tr>
         	<th>Quote ID</th>
@@ -53,16 +53,22 @@
             <th>Timeframe</th>
             <th>Note</th>
             <th>Status</th>
+            <th>Current</th>
+            <th>Reply</th>
         </tr>
         <c:forEach var="quote" items="${listOpenQuote}">
+        <form action="reviewQuote" id="${quote.quoteId}" method="post">
             <tr>
-            	<td>${quote.quoteId}</td>
+            	<td><input readonly value="${quote.quoteId}" type="text" name="quoteId" id="quoteId" required></td>
                 <td>${quote.clientEmail}</td>
                 <td>${quote.price}</td>
                 <td>${quote.timeFrame}</td>
                 <td>${quote.note}</td>
                 <td>${quote.status}</td>
+                <td>${quote.current}</td>
+                <td><input type="submit" value="Review Request"></td>    
             </tr>
+        </form>
         </c:forEach>
     </table>
     
@@ -127,6 +133,28 @@
             </tr>
         </c:forEach>
     </table>
+    
+    <script>
+    
+    function replyButton(){
+    	var reply = document.createElement("input");
+    	reply.setAttribute("type", "submit");
+    	reply.setAttribute("value", "Review Request")
+    	
+    	var table=document.getElementById("openQuotes");
+    	var r=1; //start counting rows in table
+    	while(row=table.rows[r++])
+    	{
+    	  var c=7; //start counting columns in row
+    	  cell=row.cells[7];
+    	  if(row.cells[6].innerText == ("davidsmith@treecutters.com")){
+    		  row.cells[7].innerHTML='Awaiting Response'; // do sth with cell
+    	  }
+    	}
+    }
+    
+    replyButton();
+    </script>
 </body>
 </html>
     

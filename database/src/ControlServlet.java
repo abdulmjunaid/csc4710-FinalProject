@@ -86,18 +86,22 @@ public class ControlServlet extends HttpServlet {
         	 case "/submitRequest":
         		 submitRequest(request, response);
         		 break;
-        	 case "/denyRequest":
-        		 System.out.println("Deny");
-        		 denyRequest(request, response);
+        	 case "/acceptQuote":
+        		 System.out.println("accept");
+        		 acceptQuote(request, response);
         		 break;
-        	 case "/initialQuote":
-        		 initialQuotePage(request, response, "");
+        	 case "/denyQuote":
+        		 System.out.println("Deny");
+        		 denyQuote(request, response);
+        		 break;
+        	 case "/sendQuote":
+        		 sendQuotePage(request, response, "");
         		 break;
         	 case "/submitQuote":
         		 submitQuote(request, response);
         		 break;
         	 case "/reviewQuote":
-        		 redirect(request, response);
+        		 reviewQuotePage(request, response, "");
         		 break;
 	    	}
 	    }
@@ -160,28 +164,37 @@ public class ControlServlet extends HttpServlet {
 	    	session = request.getSession();
 	    	int quoteId = Integer.valueOf(request.getParameter("requestId"));
 			session.setAttribute("client", currentUser);
-			session.setAttribute("listTrees", userDAO.getTrees(quoteId));
-			session.setAttribute("listQuote", userDAO.getRequest(quoteId));
+			session.setAttribute("listQuote", userDAO.getQuote(quoteId));
 	    	request.getRequestDispatcher("reviewrequest.jsp").forward(request, response);
 	    	
 	    }
 	    
-	    private void denyRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
+	    private void denyQuote(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
 	    	System.out.println("deny request");
 	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
-	    	quote quotes = userDAO.getRequest(quoteId);
+	    	quote quotes = userDAO.getQuote(quoteId);
 	    	quotes.setTime(LocalTime.now().toString());
 			userDAO.denyQuote(quotes, currentUser);
 			
 			quotesPage(request, response, "");
 	    }
 	    
-	    private void initialQuotePage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    private void acceptQuote(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
+	    	System.out.println("accept request");
+	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
+	    	quote quotes = userDAO.getQuote(quoteId);
+	    	quotes.setTime(LocalTime.now().toString());
+			userDAO.acceptQuote(quotes, currentUser);
+			
+			quotesPage(request, response, "");
+	    }
+	    
+	    private void sendQuotePage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
 	    	System.out.println("initial quote");
 	    	session = request.getSession();
 	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
 			session.setAttribute("client", currentUser);
-			session.setAttribute("listQuote", userDAO.getRequest(quoteId));
+			session.setAttribute("listQuote", userDAO.getQuote(quoteId));
 	    	request.getRequestDispatcher("initialquote.jsp").forward(request, response);
 	    }
 	    
@@ -223,6 +236,17 @@ public class ControlServlet extends HttpServlet {
 	    	}
 	    	
 	    	quotesPage(request, response, "");
+	    }
+	    
+	    private void reviewQuotePage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("review quote");
+	    	System.out.println();
+	    	session = request.getSession();
+	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
+			session.setAttribute("client", currentUser);
+			session.setAttribute("listQuote", userDAO.getQuote(quoteId));
+	    	request.getRequestDispatcher("reviewquote.jsp").forward(request, response);
+	    	
 	    }
 	    
 	    private void submitQuote(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
