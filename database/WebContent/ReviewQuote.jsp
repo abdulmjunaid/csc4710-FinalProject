@@ -12,6 +12,7 @@
     </style>
 </head>
 <body>
+	<a href="activitypage.jsp"target ="_self" > back</a><br><br> 
     <h1>Review Quote</h1>
     <p>Here is the submitted quote:</p>
     <p><strong>Price:</strong> $${param.price}</p>
@@ -24,5 +25,7 @@
         <input type="submit" name="resubmit" value="Resubmit" formaction="SubmitQuote.jsp">
  
     </form>
+    
+    
 </body>
 </html>

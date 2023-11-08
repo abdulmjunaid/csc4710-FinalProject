@@ -9,13 +9,24 @@
 <title>Activity page</title>
 </head>
 
-<center><h1>Welcome! You have been successfully logged in</h1> </center>
+<center><h1>Welcome! You have been successfully logged in as ${firstName} ${lastName} </h1> </center>
 
  
 	<body>
 	 <center>
 		 <a href="login.jsp"target ="_self" > logout</a><br><br> 
 		 <p> You can show all the transactions or other attributes here like balance, name of the user and others.</p>
-		 </center>
+		 <a href="quotes.jsp"target ="_self" > quotes</a><br><br> 
+	</center>
+	
+	<form action="viewQuotes" method="post">
+			<table cellpadding="5">
+				<tr>
+					<td colspan="2">
+						<input type="submit" value="View Quotes">
+					</td>
+				</tr>
+			</table>
+	</form>
 	</body>
 </html>

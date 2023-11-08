@@ -196,11 +196,229 @@ public class userDAO
             String password = resultSet.getString("password");
             user = new user(role, email, firstName, lastName, adress_street_num,  adress_street,  adress_city,  adress_state,  adress_zip_code, creditCard, phoneNumber, password);
         }
-         
         resultSet.close();
-        statement.close();
          
         return user;
+    }
+    
+    public int submitRequest(quote quoteReq) throws SQLException {
+    	int quoteId;
+    	connect_func();         
+		String sql = "insert into Quote(clientEmail, status, current, note, time) values (?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, quoteReq.getClientEmail());
+			preparedStatement.setString(2, quoteReq.getStatus());
+			preparedStatement.setString(3, quoteReq.getCurrent());
+			preparedStatement.setString(4, quoteReq.getNote());
+			preparedStatement.setString(5, quoteReq.getTime());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+        
+        sql = "SELECT quoteId FROM Quote WHERE clientEmail = ? and time = ?";
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, quoteReq.getClientEmail());
+        preparedStatement.setString(2, quoteReq.getTime());
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.next();
+        quoteId = resultSet.getInt("quoteId");
+        resultSet.close();
+        
+        sql = "insert into QuoteHistory(email, status, note, time, quoteId) values (?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, quoteReq.getClientEmail());
+			preparedStatement.setString(2, quoteReq.getStatus());
+			preparedStatement.setString(3, quoteReq.getNote());
+			preparedStatement.setString(4, quoteReq.getTime());
+			preparedStatement.setInt(5, quoteId);
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+        
+        return quoteId;
+    }
+    
+    public quote getRequest(int quoteId) throws SQLException {
+    	quote quotes = null;
+        String sql = "SELECT * FROM Quote WHERE quoteId = ?";
+         
+        connect_func();
+         
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setInt(1, quoteId);
+         
+        ResultSet resultSet = preparedStatement.executeQuery();
+         
+        if (resultSet.next()) {
+        	String clientEmail = resultSet.getString("clientEmail");
+            Double price = resultSet.getDouble("price");
+            String timeFrame = resultSet.getString("timeFrame");
+            String note = resultSet.getString("note"); 
+            String status = resultSet.getString("status"); 
+            String current = resultSet.getString("current"); 
+            String time = resultSet.getString("time"); 
+
+            quotes = new quote( quoteId,  clientEmail,  price,  timeFrame,  note,  status,  current);
+        }
+        resultSet.close();
+         
+        return quotes;
+    }
+    
+    public void denyQuote(quote quotes, String currentUser) throws SQLException {
+    	String sql = "update Quote set status=?, note=?, time=? where quoteId=?";
+        connect_func();
+        
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "rejected");
+        preparedStatement.setString(2, "Rejected by " + currentUser);
+        preparedStatement.setString(3, quotes.getTime());
+        preparedStatement.setInt(4, quotes.getQuoteId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();    
+        
+        sql = "insert into QuoteHistory(email, status, price, timeFrame, note, time, quoteId) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, currentUser);
+		preparedStatement.setString(2, "rejected");
+		preparedStatement.setDouble(3, quotes.getPrice());
+		preparedStatement.setString(4, quotes.getTimeFrame());
+		preparedStatement.setString(5, "Rejected by " + currentUser);
+		preparedStatement.setString(6, quotes.getTime());
+		preparedStatement.setInt(7, quotes.getQuoteId());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void submitQuote(quote quotes, String currentUser) throws SQLException {
+    	String sql = "update Quote set status=?, price=?, timeFrame=?, note=?, time=?, current=? where quoteId=?";
+        connect_func();
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "open");
+        preparedStatement.setDouble(2, quotes.getPrice());
+        preparedStatement.setString(3, quotes.getTimeFrame());
+        preparedStatement.setString(4, quotes.getNote());
+        preparedStatement.setString(5, quotes.getTime());
+        if (currentUser.equals("davidsmith@treecutters.com")) {
+        	preparedStatement.setString(6, quotes.getClientEmail());
+        }
+        else {
+        	preparedStatement.setString(6, "davidsmith@treecutters.com");
+        }
+        preparedStatement.setInt(7, quotes.getQuoteId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();    
+        
+        sql = "insert into QuoteHistory(email, status, price, timeFrame, note, time, quoteId) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, currentUser);
+		preparedStatement.setString(2, "open");
+		preparedStatement.setDouble(3, quotes.getPrice());
+		preparedStatement.setString(4, quotes.getTimeFrame());
+		preparedStatement.setString(5, quotes.getNote());
+		preparedStatement.setString(6, quotes.getTime());
+		preparedStatement.setInt(7, quotes.getQuoteId());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public List<tree> getTrees(int quoteId) throws SQLException {
+    	List<tree> listTrees = new ArrayList<tree>(); 
+    	
+    	String sql = "SELECT * FROM tree WHERE quoteId = ?";
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setInt(1, quoteId);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        
+        while (resultSet.next()) {
+        	int treeId = resultSet.getInt("treeId");
+            String firstPic = resultSet.getString("firstPic");
+            String secondPic = resultSet.getString("secondPic");
+            String thirdPic = resultSet.getString("thirdPic");
+            Double size = resultSet.getDouble("size"); 
+            Double height = resultSet.getDouble("height");
+            Double distance = resultSet.getDouble("distance"); 
+             
+            tree trees = new tree( treeId,  quoteId,  firstPic,  secondPic,  thirdPic,  size,  height,  distance);
+            listTrees.add(trees);
+        }        
+        resultSet.close();
+        disconnect();  
+        
+    	return listTrees;
+    }
+    
+    public void addTree(tree trees) throws SQLException {
+    	connect_func();         
+		String sql = "insert into Tree(quoteId, firstPic, secondPic, thirdPic, size, height, distance) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setInt(1, trees.getQuoteId());
+			preparedStatement.setString(2, trees.getFirstPic());
+			preparedStatement.setString(3, trees.getSecondPic());
+			preparedStatement.setString(4, trees.getThirdPic());
+			preparedStatement.setDouble(5, trees.getSize());
+			preparedStatement.setDouble(6, trees.getHeight());
+			preparedStatement.setDouble(7, trees.getDistance());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public List<quote> listQuotes(String email, String status) throws SQLException {
+    	List<quote> listQuote = new ArrayList<quote>();         
+    	
+    	if (email.equals("davidsmith@treecutters.com")) {
+    		String sql = "SELECT * FROM quote WHERE status = ?";
+	    	connect_func();
+	    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+	        preparedStatement.setString(1, status);
+	        ResultSet resultSet = preparedStatement.executeQuery();
+	        
+	        while (resultSet.next()) {
+	        	int quoteId = resultSet.getInt("quoteId");
+	            String clientEmail = resultSet.getString("clientEmail");
+	            Double price = resultSet.getDouble("price");
+	            String timeFrame = resultSet.getString("timeFrame");
+	            String note = resultSet.getString("note"); 
+	            String s = resultSet.getString("status"); 
+	            String current = resultSet.getString("current"); 
+	             
+	            quote quote = new quote(quoteId, clientEmail,price, timeFrame, note,  s,  current);
+	            listQuote.add(quote);
+	        }        
+	        resultSet.close();
+	        disconnect();  
+    	}
+    	
+    	else {
+	    	String sql = "SELECT * FROM quote WHERE clientEmail = ? and status = ?";
+	    	connect_func();
+	    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+	        preparedStatement.setString(1, email);
+	        preparedStatement.setString(2, status);
+	        ResultSet resultSet = preparedStatement.executeQuery();
+	        
+	        while (resultSet.next()) {
+	        	int quoteId = resultSet.getInt("quoteId");
+	            String clientEmail = resultSet.getString("clientEmail");
+	            Double price = resultSet.getDouble("price");
+	            String timeFrame = resultSet.getString("timeFrame");
+	            String note = resultSet.getString("note"); 
+	            String s = resultSet.getString("status"); 
+	            String current = resultSet.getString("current"); 
+	             
+	            quote quote = new quote(quoteId, clientEmail,price, timeFrame, note,  s,  current);
+	            listQuote.add(quote);
+	        }        
+	        resultSet.close();
+	        disconnect();  
+    	}
+        
+        return listQuote;
     }
     
     public boolean checkEmail(String email) throws SQLException {
@@ -294,25 +512,28 @@ public class userDAO
 					        "drop table if exists Quote; ",
 					        ("CREATE TABLE if not exists Quote( " +
 					        	"quoteId INTEGER NOT NULL AUTO_INCREMENT, "+
-					        	"email VARCHAR(50) NOT NULL, "+
-					        	"price DOUBLE NOT NULL, "+
-					        	"timeFrame VARCHAR(255) NOT NULL, "+
+					        	"clientEmail VARCHAR(50) NOT NULL, "+
+					        	"price DOUBLE, "+
+					        	"timeFrame VARCHAR(255), "+
 					        	"note VARCHAR(255), "+
-					        	"status VARCHAR(8) NOT NULL DEFAULT 'open', "+
-					        	"CHECK (status in ('open', 'accepted', 'rejected')), "+
+					        	"status VARCHAR(8) NOT NULL DEFAULT 'request', "+
+					        	"current VARCHAR(255) NOT NULL, "+
+					        	"time VARCHAR(255) NOT NULL, "+
+					        	"CHECK (status in ('request', 'open', 'accepted', 'rejected')), "+
 					        	"PRIMARY KEY(quoteId), "+
-					        	"FOREIGN KEY (email) REFERENCES User(email) "+");"),
+					        	"FOREIGN KEY (current) REFERENCES User(email), "+
+					        	"FOREIGN KEY (clientEmail) REFERENCES User(email) "+");"),
 					        
 					        "drop table if exists QuoteHistory; ",
 					        ("CREATE TABLE if not exists QuoteHistory( " +
-					        	"time DATETIME NOT NULL, "+
+					        	"time VARCHAR(255) NOT NULL, "+
 					        	"quoteId INTEGER NOT NULL, "+
 					        	"email VARCHAR(50) NOT NULL, "+
-					        	"price DOUBLE NOT NULL, "+
-					        	"timeFrame VARCHAR(255) NOT NULL, "+
+					        	"price DOUBLE, "+
+					        	"timeFrame VARCHAR(255), "+
 					        	"note VARCHAR(255), "+
 					        	"status VARCHAR(8) NOT NULL DEFAULT 'open', "+
-					        	"CHECK (status in ('open', 'accepted', 'rejected')), "+
+					        	"CHECK (status in ('request', 'open', 'accepted', 'rejected')), "+
 					        	"PRIMARY KEY(time, quoteId), "+
 					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId), "+
 					        	"FOREIGN KEY (email) REFERENCES User(email) "+");"),
@@ -348,12 +569,12 @@ public class userDAO
 					        ("CREATE TABLE if not exists tree( " +
 					        	"treeId INTEGER NOT NULL AUTO_INCREMENT, "+
 					        	"quoteId INTEGER NOT NULL, "+
-					        	"firstPic VARCHAR(255), "+
-					        	"secondPic VARCHAR(255), "+
-					        	"thirdPic VARCHAR(255), "+
-					        	"size INTEGER NOT NULL, "+
-					        	"height INTEGER NOT NULL, "+
-					        	"distance INTEGER NOT NULL, "+
+					        	"firstPic VARCHAR(255) NOT NULL, "+
+					        	"secondPic VARCHAR(255) NOT NULL, "+
+					        	"thirdPic VARCHAR(255) NOT NULL, "+
+					        	"size DOUBLE NOT NULL, "+
+					        	"height DOUBLE NOT NULL, "+
+					        	"distance DOUBLE NOT NULL, "+
 					        	"PRIMARY KEY(treeId), "+
 					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId) "+");"),
 					        
@@ -374,28 +595,27 @@ public class userDAO
         			 		"('client', 'sonny@gmail.com', 'Sonny', 'Vu', '5876', 'south st', 'Troy', 'MI', '48222', '312382987310005', '7134533265', 'sonny1234'), "+
         					"('root', 'root', 'default', 'default', '0000', 'default', 'default', '00', '00000', '000000000000000', '0000000000', 'pass1234'); "),
         					
-        					("insert into Quote(email, price, timeFrame, note, status)"+
-        			 "values ('tatum@gmail.com', 300, 'monday', 'abc', 'accepted'),"+
-        					"('alvaro@gmail.com', 400, 'tuesday and thursday', 'def', 'accepted'),"+
-        					"('stella@gmail.com', 200, 'friday', 'ghi', 'rejected'),"+
-        					"('stella@gmail.com', 200, 'tuesday', 'jkl', 'open'),"+
-        					"('andi@gmail.com', 400, 'thursday and friday', 'mno', 'rejected'),"+
-        					"('reid@gmail.com', 300, 'tuesday', 'pqr', 'accepted'),"+
-        					"('andi@gmail.com', 400, 'monday', 'stu', 'rejected'),"+
-        					"('alvaro@gmail.com', 200, 'monday', 'vwx', 'open'),"+
-        					"('sonny@gmail.com', 300, 'tuesday', 'yza', 'accepted'),"+
-        					"('sonny@gmail.com', 600, 'tuesday and wednesday', 'yza', 'accepted'),"+
-        					"('margo@gmail.com', 300, 'tuesday', 'yza', 'accepted'),"+
-        					"('ray@gmail.com', 200, 'wednesday', 'yza', 'accepted'),"+
-        					"('alvaro@gmail.com', 250, 'thursday', 'def', 'accepted'),"+
-        					"('tatum@gmail.com', 250, 'friday', 'def', 'accepted'),"+
-        					"('andi@gmail.com', 200, 'friday', 'bcd', 'accepted');"),
+        					("insert into Quote(time, clientEmail, price, timeFrame, note, status, current)"+
+        			 "values ('2023-09-12 08:03:03', 'tatum@gmail.com', 300, 'monday', 'abc', 'open', 'tatum@gmail.com'),"+
+        					"('2023-09-29 08:03:03', 'alvaro@gmail.com', 400, 'tuesday and thursday', 'def', 'accepted', 'alvaro@gmail.com'),"+
+        					"('2023-09-16 08:03:03', 'stella@gmail.com', 200, 'friday', 'ghi', 'rejected', 'stella@gmail.com'),"+
+        					"('2023-09-22 08:03:03', 'stella@gmail.com', 200, 'tuesday', 'jkl', 'open', 'davidsmith@treecutters.com'),"+
+        					"('2023-08-21 08:03:03', 'andi@gmail.com', 400, 'thursday and friday', 'mno', 'rejected', 'andi@gmail.com'),"+
+        					"('2023-07-19 08:03:03', 'reid@gmail.com', 300, 'tuesday', 'pqr', 'open', 'reid@gmail.com'),"+
+        					"('2023-07-29 08:03:03', 'andi@gmail.com', 400, 'monday', 'stu', 'rejected', 'davidsmith@treecutters.com'),"+
+        					"('2023-09-29 08:03:03', 'alvaro@gmail.com', 200, 'monday', 'vwx', 'open', 'davidsmith@treecutters.com'),"+
+        					"('2023-08-29 08:03:03', 'sonny@gmail.com', 300, 'tuesday', 'yza', 'accepted', 'davidsmith@treecutters.com'),"+
+        					"('2023-08-19 08:03:03', 'sonny@gmail.com', 600, 'tuesday and wednesday', 'yza', 'accepted', 'sonny@gmail.com'),"+
+        					"('2023-09-32 08:03:03', 'margo@gmail.com', 300, 'tuesday', 'yza', 'accepted', 'margo@gmail.com'),"+
+        					"('2023-07-31 08:03:03', 'ray@gmail.com', 200, 'wednesday', 'yza', 'accepted', 'davidsmith@treecutters.com'),"+
+        					"('2023-09-19 08:03:03', 'alvaro@gmail.com', 250, 'thursday', 'def', 'accepted', 'alvaro@gmail.com'),"+
+        					"('2023-08-29 08:03:03', 'tatum@gmail.com', 250, 'friday', 'def', 'accepted', 'tatum@gmail.com'),"+
+        					"('2023-09-12 08:03:03', 'andi@gmail.com', 200, 'friday', 'bcd', 'accepted', 'davidsmith@treecutters.com');"),
         					
         					("insert into QuoteHistory(time, quoteId, email, price, timeFrame, note, status)"+
         			 "values ('2023-09-29 08:03:03', 1,'davidsmith@treecutters.com', 400, 'monday', 'abc', 'open'),"+
         					"('2023-09-30 09:25:00', 1,'tatum@gmail.com', 300, 'tuesday', 'def', 'open'),"+
         					"('2023-10-02 02:32:21', 1,'davidsmith@treecutters.com', 350, 'tuesday', 'ghi', 'open'),"+
-        					"('2023-10-03 18:54:45', 1,'tatum@gmail.com', 350, 'tuesday', 'jkl', 'accepted'),"+
         					
         					"('2023-10-05 12:53:12', 2,'davidsmith@treecutters.com', 400, 'thursday and friday', 'mno', 'open'),"+
         					"('2023-10-07 09:43:12', 2,'alvaro@gmail.com', 400, 'thursday and friday', 'pqr', 'accepted'),"+
@@ -447,17 +667,17 @@ public class userDAO
         					"('2023-10-26 13:23:17', 5, 15,'davidsmith@treecutters.com', 450, 'def', 'open'),"+
         					"('2023-10-26 14:12:12', 5, 15,'andi@gmail.com', 450, 'bcd', 'rejected');"),      					
         					
-        					("insert into Tree(quoteId, size, height, distance)"+
-        			 "values (1, 2, 5, 4), "+
-        					"(2, 3, 3, 7), "+
-        					"(3, 4, 4, 4), "+
-        					"(4, 5, 5, 2), "+
-        					"(5, 7, 8, 4), "+
-        					"(6, 2, 2, 7), "+
-        					"(7, 8, 3, 8), "+
-        					"(8, 3, 6, 3), "+
-        					"(9, 8, 9, 2), "+
-        					"(10, 9, 2, 8); ")
+        					("insert into Tree(quoteId, firstPic, secondPic, thirdPic, size, height, distance)"+
+        			 "values (1, 'picture3', 'picture2', 'picture3', 2, 5, 4), "+
+        					"(2, 'picture3', 'picture3', 'picture3', 3, 3, 7), "+
+        					"(3, 'picture3', 'picture3', 'picture3', 4, 4, 4), "+
+        					"(4, 'picture3', 'picture3', 'picture3', 5, 5, 2), "+
+        					"(5, 'picture3', 'picture3', 'picture3', 7, 8, 4), "+
+        					"(6, 'picture3', 'picture3', 'picture3', 2, 2, 7), "+
+        					"(7, 'picture3', 'picture3', 'picture3', 8, 3, 8), "+
+        					"(8, 'picture3', 'picture3', 'picture3', 3, 6, 3), "+
+        					"(9, 'picture3', 'picture3', 'picture3', 8, 9, 2), "+
+        					"(10, 'picture3', 'picture3', 'picture3', 9, 2, 8); ")
         			
         								 
 			    			};

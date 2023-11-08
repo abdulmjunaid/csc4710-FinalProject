@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.time.LocalTime;
 import java.io.PrintWriter;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -24,6 +25,7 @@ public class ControlServlet extends HttpServlet {
 	    private static final long serialVersionUID = 1L;
 	    private userDAO userDAO = new userDAO();
 	    private String currentUser;
+	    private user User;
 	    private HttpSession session=null;
 	    
 	    public ControlServlet()
@@ -68,6 +70,35 @@ public class ControlServlet extends HttpServlet {
                  System.out.println("The action is: list");
                  listUser(request, response);           	
                  break;
+        	 case "/viewQuotes":
+        		 System.out.println("The action is: viewQuotes");
+        		 quotesPage(request, response, "");
+        		 break;
+        	 case "/main":
+        		 redirect(request, response);
+        		 break;
+        	 case "/requestQuote":
+        		 requestQuotePage(request, response, "");
+        		 break;
+        	 case "/reviewRequest":
+        		 reviewRequestPage(request, response, "");
+        		 break;
+        	 case "/submitRequest":
+        		 submitRequest(request, response);
+        		 break;
+        	 case "/denyRequest":
+        		 System.out.println("Deny");
+        		 denyRequest(request, response);
+        		 break;
+        	 case "/initialQuote":
+        		 initialQuotePage(request, response, "");
+        		 break;
+        	 case "/submitQuote":
+        		 submitQuote(request, response);
+        		 break;
+        	 case "/reviewQuote":
+        		 redirect(request, response);
+        		 break;
 	    	}
 	    }
 	    catch(Exception ex) {
@@ -94,6 +125,136 @@ public class ControlServlet extends HttpServlet {
 	    	request.getRequestDispatcher("rootView.jsp").forward(request, response);
 	    }
 	    
+	    private void quotesPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	if(currentUser.equals("davidsmith@treecutters.com")) {
+	    		session = request.getSession();
+	    		session.setAttribute("listRequestedQuote", userDAO.listQuotes(currentUser, "request"));
+	    		session.setAttribute("listOpenQuote", userDAO.listQuotes(currentUser, "open"));
+				session.setAttribute("listAcceptedQuote", userDAO.listQuotes(currentUser, "accepted"));
+				session.setAttribute("listRejectedQuote", userDAO.listQuotes(currentUser, "rejected"));
+				session.setAttribute("firstName", User.getFirstName());
+				session.setAttribute("lastName", User.getLastName());
+		    	request.getRequestDispatcher("davidquotes.jsp").forward(request, response);
+	    	}
+	    	else {
+	    		session = request.getSession();
+	    		session.setAttribute("listRequestedQuote", userDAO.listQuotes(currentUser, "request"));
+	    		session.setAttribute("listOpenQuote", userDAO.listQuotes(currentUser, "open"));
+				session.setAttribute("listAcceptedQuote", userDAO.listQuotes(currentUser, "accepted"));
+				session.setAttribute("listRejectedQuote", userDAO.listQuotes(currentUser, "rejected"));
+				session.setAttribute("firstName", User.getFirstName());
+				session.setAttribute("lastName", User.getLastName());
+		    	request.getRequestDispatcher("quotes.jsp").forward(request, response);
+	    	}
+	    }
+	    
+	    private void requestQuotePage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("request quote");
+			request.setAttribute("client", currentUser);
+	    	request.getRequestDispatcher("requestquote.jsp").forward(request, response);
+	    }
+	    
+	    private void reviewRequestPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("review request");
+	    	System.out.println();
+	    	session = request.getSession();
+	    	int quoteId = Integer.valueOf(request.getParameter("requestId"));
+			session.setAttribute("client", currentUser);
+			session.setAttribute("listTrees", userDAO.getTrees(quoteId));
+			session.setAttribute("listQuote", userDAO.getRequest(quoteId));
+	    	request.getRequestDispatcher("reviewrequest.jsp").forward(request, response);
+	    	
+	    }
+	    
+	    private void denyRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
+	    	System.out.println("deny request");
+	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
+	    	quote quotes = userDAO.getRequest(quoteId);
+	    	quotes.setTime(LocalTime.now().toString());
+			userDAO.denyQuote(quotes, currentUser);
+			
+			quotesPage(request, response, "");
+	    }
+	    
+	    private void initialQuotePage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("initial quote");
+	    	session = request.getSession();
+	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
+			session.setAttribute("client", currentUser);
+			session.setAttribute("listQuote", userDAO.getRequest(quoteId));
+	    	request.getRequestDispatcher("initialquote.jsp").forward(request, response);
+	    }
+	    
+	    private void submitRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+	    	String firstPic, secondPic, thirdPic;
+	    	Double size, height, distance;
+	    	String tree = request.getParameter("total");
+	    	int count = Integer.valueOf(tree.substring(7));
+	    	
+	    	String note = request.getParameter("note");
+	    	
+	    	quote quoteReq = new quote();
+	    	tree trees  = new tree();
+	    	quoteReq.setClientEmail(currentUser);
+	    	quoteReq.setStatus("request");
+	    	quoteReq.setCurrent("davidsmith@treecutters.com");
+	    	quoteReq.setTime(LocalTime.now().toString());
+	    	quoteReq.setNote(note);
+	    	int quoteId = userDAO.submitRequest(quoteReq);
+	    	System.out.println(quoteId);
+	    	
+	    	for(int i=1; i<=count; i++) {
+	    		firstPic = request.getParameter("firstPic"+i);
+	    		secondPic = request.getParameter("secondPic"+i);
+	    		thirdPic = request.getParameter("thirdPic"+i);
+	    		size = Double.valueOf(request.getParameter("size"+i));
+	    		height = Double.valueOf(request.getParameter("height"+i));
+	    		distance = Double.valueOf(request.getParameter("distance"+i));
+	    		
+	    		trees.setFirstPic(firstPic);
+	    		trees.setSecondPic(secondPic);
+	    		trees.setThirdPic(thirdPic);
+	    		trees.setSize(size);
+	    		trees.setHeight(height);
+	    		trees.setDistance(distance);
+	    		trees.setQuoteId(quoteId);
+	    		
+	    		userDAO.addTree(trees);
+	    	}
+	    	
+	    	quotesPage(request, response, "");
+	    }
+	    
+	    private void submitQuote(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
+	    	Double price = Double.valueOf(request.getParameter("price"));
+	    	String timeFrame = request.getParameter("timeframe");
+	    	String clientEmail = request.getParameter("clientEmail");
+	    	String note = request.getParameter("note");
+	    	
+	    	quote quotes = new quote();
+	    	quotes.setQuoteId(quoteId);
+	    	quotes.setClientEmail(clientEmail);
+	    	quotes.setPrice(price);
+	    	quotes.setTimeFrame(timeFrame);
+	    	quotes.setStatus("open");
+	    	quotes.setTime(LocalTime.now().toString());
+	    	quotes.setNote(note);
+	    	
+	    	userDAO.submitQuote(quotes, currentUser);
+	    	quotesPage(request, response, "");
+	    }
+
+	    
+	    protected void redirect(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
+	    	if (currentUser.equals("davidsmith@treecutters.com")) {
+	    		System.out.println("redirecting to david");
+	    		request.getRequestDispatcher("davidsmith.jsp").forward(request, response);
+	    	}
+	    	else {
+	    		request.getRequestDispatcher("activitypage.jsp").forward(request, response);		 			 
+	    	}
+	    }
 	    
 	    protected void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 	    	 String email = request.getParameter("email");
@@ -101,21 +262,30 @@ public class ControlServlet extends HttpServlet {
 	    	 
 	    	 if (email.equals("root") && password.equals("pass1234")) {
 				 System.out.println("Login Successful! Redirecting to root");
+				 currentUser = email;
+			 	 User = userDAO.getUser(currentUser);
 				 session = request.getSession();
 				 session.setAttribute("username", email);
 				 rootPage(request, response, "");
 	    	 }
 	    	 else if (email.equals("davidsmith@treecutters.com") && password.equals("david1234")) {
-				 System.out.println("Login Successful! Redirecting to David");
+	    		 currentUser = email;
+			 	 User = userDAO.getUser(currentUser);
+			 	 session = request.getSession();
+	    		 System.out.println("Login Successful! Redirecting to David");
+	    		 session.setAttribute("firstName", User.getFirstName());
+				 session.setAttribute("lastName", User.getLastName());
 				 request.getRequestDispatcher("davidsmith.jsp").forward(request, response);
 	    	 }
 	    	 else if(userDAO.isValid(email, password)) 
 	    	 {
-			 	 
 			 	 currentUser = email;
-				 System.out.println("Login Successful! Redirecting");
-				 request.getRequestDispatcher("activitypage.jsp").forward(request, response);
-			 			 			 			 
+			 	 User = userDAO.getUser(currentUser);
+			 	 session = request.getSession();
+			 	 System.out.println("Login Successful! Redirecting to Client");
+	    		 session.setAttribute("firstName", User.getFirstName());
+				 session.setAttribute("lastName", User.getLastName());
+				 request.getRequestDispatcher("activitypage.jsp").forward(request, response);	 			 
 	    	 }
 	    	 else {
 	    		 request.setAttribute("loginStr","Login Failed: Please check your credentials.");
