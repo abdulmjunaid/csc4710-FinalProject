@@ -51,10 +51,11 @@
     
                 <p>Welcome, ${sessionScope.userName}!</p>
     
-    
+    <form action="viewQuotes">
     <center>
         <a href="login.jsp" target="_self">Logout</a><br><br>
-        <a href="SubmitQuote.jsp" target="_self">Submit a quote</a><br><br>
+        <input type="submit" value="View Quotes" class="view-qutoes"/><br><br>
+    </form>
 
     </center>
 </div>

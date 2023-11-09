@@ -165,6 +165,7 @@ public class ControlServlet extends HttpServlet {
 	    	int quoteId = Integer.valueOf(request.getParameter("requestId"));
 			session.setAttribute("client", currentUser);
 			session.setAttribute("listQuote", userDAO.getQuote(quoteId));
+			session.setAttribute("listTrees", userDAO.getTrees(quoteId));
 	    	request.getRequestDispatcher("reviewrequest.jsp").forward(request, response);
 	    	
 	    }
