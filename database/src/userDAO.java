@@ -297,7 +297,7 @@ public class userDAO
     public void denyQuote(quote quotes, String currentUser) throws SQLException {
     	String sql = "update Quote set status=?, note=?, time=? where quoteId=?";
         connect_func();
-        
+        System.out.println("hji");
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, "rejected");
         preparedStatement.setString(2, "Rejected by " + currentUser);
@@ -341,6 +341,32 @@ public class userDAO
 		preparedStatement.setString(5, "accepted by " + currentUser);
 		preparedStatement.setString(6, quotes.getTime());
 		preparedStatement.setInt(7, quotes.getQuoteId());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void payBill(bill bills, String currentUser) throws SQLException {
+    	String sql = "update Bill set status=?, note=?, time=? where billId=?";
+        connect_func();
+        
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "accepted");
+        preparedStatement.setString(2, "paid by " + currentUser);
+        preparedStatement.setString(3, bills.getTime());
+        preparedStatement.setInt(4, bills.getQuoteId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();    
+        
+        sql = "insert into BillHistory(email, status, price, note, time, quoteId, billId) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, currentUser);
+		preparedStatement.setString(2, "accepted");
+		preparedStatement.setDouble(3, bills.getPrice());
+		preparedStatement.setString(4, "paid by " + currentUser);
+		preparedStatement.setString(5, bills.getTime());
+		preparedStatement.setInt(6, bills.getQuoteId());
+		preparedStatement.setInt(7, bills.getBillId());
 
 		preparedStatement.executeUpdate();
         preparedStatement.close();
@@ -661,7 +687,7 @@ public class userDAO
 					        
 					        "drop table if exists BillHistory; ",
 					        ("CREATE TABLE if not exists BillHistory( " +
-					        	"time DATETIME NOT NULL, "+
+					        	"time VARCHAR(255) NOT NULL, "+
 					        	"billId INTEGER NOT NULL, "+
 					        	"quoteId INTEGER NOT NULL, "+
 					        	"email VARCHAR(50) NOT NULL, "+

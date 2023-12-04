@@ -119,6 +119,9 @@ public class ControlServlet extends HttpServlet {
         	 case "/replyBillPage":
         		 replyBillPage(request, response, "");
         		 break;
+        	 case "/payBill":
+        		 payBill(request, response);
+        		 break;
         		 
 	    	}
         	
@@ -223,6 +226,16 @@ public class ControlServlet extends HttpServlet {
 	    	quote quotes = userDAO.getQuote(quoteId);
 	    	quotes.setTime(LocalTime.now().toString());
 			userDAO.acceptQuote(quotes, currentUser);
+			
+			quotesPage(request, response, "");
+	    }
+	    
+	    private void payBill(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
+	    	System.out.println("pay bill");
+	    	int billId = Integer.valueOf(request.getParameter("billId"));
+	    	bill bills = userDAO.getBill(billId);
+	    	bills.setTime(LocalTime.now().toString());
+			userDAO.payBill(bills, currentUser);
 			
 			quotesPage(request, response, "");
 	    }
