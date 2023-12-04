@@ -50,14 +50,19 @@
   <h1>Welcome to the Activity Page</h1>
     
                 <p>Welcome, ${sessionScope.userName}!</p>
+      
+    <center>
+    <a href="login.jsp" target="_self">Logout</a><br><br>
     
     <form action="viewQuotes">
-    <center>
-        <a href="login.jsp" target="_self">Logout</a><br><br>
         <input type="submit" value="View Quotes" class="view-qutoes"/><br><br>
     </form>
-
+    
+    <form action="viewBills">
+        <input type="submit" value="View Bills" class="view-bills"/><br><br>
+    </form>
     </center>
+ 
 </div>
 </body>
 </html>

@@ -74,6 +74,10 @@ public class ControlServlet extends HttpServlet {
         		 System.out.println("The action is: viewQuotes");
         		 quotesPage(request, response, "");
         		 break;
+        	 case "/viewBills":
+        		 System.out.println("The action is: viewBills");
+        		 billsPage(request, response, "");
+        		 break;
         	 case "/main":
         		 redirect(request, response);
         		 break;
@@ -103,7 +107,21 @@ public class ControlServlet extends HttpServlet {
         	 case "/reviewQuote":
         		 reviewQuotePage(request, response, "");
         		 break;
+        	 case "/reviewBill":
+        		 reviewBillPage(request, response, "");
+        		 break;
+        	 case "/davidReviewBill":
+        		 davidReviewBillPage(request, response, "");
+        		 break;
+        	 case "/rejectBillPage":
+        		 rejectBillPage(request, response, "");
+        		 break;
+        	 case "/replyBillPage":
+        		 replyBillPage(request, response, "");
+        		 break;
+        		 
 	    	}
+        	
 	    }
 	    catch(Exception ex) {
         	System.out.println(ex.getMessage());
@@ -149,6 +167,25 @@ public class ControlServlet extends HttpServlet {
 				session.setAttribute("firstName", User.getFirstName());
 				session.setAttribute("lastName", User.getLastName());
 		    	request.getRequestDispatcher("quotes.jsp").forward(request, response);
+	    	}
+	    }
+	    
+	    private void billsPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	if(currentUser.equals("davidsmith@treecutters.com")) {
+	    		session = request.getSession();
+	    		session.setAttribute("listOpenBill", userDAO.listBills(currentUser, "open"));
+				session.setAttribute("listAcceptedBill", userDAO.listBills(currentUser, "accepted"));
+				session.setAttribute("firstName", User.getFirstName());
+				session.setAttribute("lastName", User.getLastName());
+		    	request.getRequestDispatcher("davidbills.jsp").forward(request, response);
+	    	}
+	    	else {
+	    		session = request.getSession();
+	    		session.setAttribute("listOpenBill", userDAO.listBills(currentUser, "open"));
+				session.setAttribute("listAcceptedBill", userDAO.listBills(currentUser, "accepted"));
+				session.setAttribute("firstName", User.getFirstName());
+				session.setAttribute("lastName", User.getLastName());
+		    	request.getRequestDispatcher("bills.jsp").forward(request, response);
 	    	}
 	    }
 	    
@@ -199,6 +236,24 @@ public class ControlServlet extends HttpServlet {
 	    	request.getRequestDispatcher("initialquote.jsp").forward(request, response);
 	    }
 	    
+	    private void rejectBillPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("reject bill");
+	    	session = request.getSession();
+	    	int billId = Integer.valueOf(request.getParameter("billId"));
+			session.setAttribute("client", currentUser);
+			session.setAttribute("listBill", userDAO.getBill(billId));
+	    	request.getRequestDispatcher("rejectbill.jsp").forward(request, response);
+	    }
+	    
+	    private void replyBillPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("reply bill");
+	    	session = request.getSession();
+	    	int billId = Integer.valueOf(request.getParameter("billId"));
+			session.setAttribute("client", currentUser);
+			session.setAttribute("listBill", userDAO.getBill(billId));
+	    	request.getRequestDispatcher("replybill.jsp").forward(request, response);
+	    }
+	    
 	    private void submitRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 	    	String firstPic, secondPic, thirdPic;
 	    	Double size, height, distance;
@@ -247,6 +302,28 @@ public class ControlServlet extends HttpServlet {
 			session.setAttribute("client", currentUser);
 			session.setAttribute("listQuote", userDAO.getQuote(quoteId));
 	    	request.getRequestDispatcher("reviewquote.jsp").forward(request, response);
+	    	
+	    }
+	    
+	    private void reviewBillPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("review bill");
+	    	System.out.println();
+	    	session = request.getSession();
+	    	int billId = Integer.valueOf(request.getParameter("billId"));
+			session.setAttribute("client", currentUser);
+			session.setAttribute("listBill", userDAO.getBill(billId));
+	    	request.getRequestDispatcher("reviewbill.jsp").forward(request, response);
+	    	
+	    }
+	    
+	    private void davidReviewBillPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("review bill");
+	    	System.out.println();
+	    	session = request.getSession();
+	    	int billId = Integer.valueOf(request.getParameter("billId"));
+			session.setAttribute("client", currentUser);
+			session.setAttribute("listBill", userDAO.getBill(billId));
+	    	request.getRequestDispatcher("davidreviewbill.jsp").forward(request, response);
 	    	
 	    }
 	    

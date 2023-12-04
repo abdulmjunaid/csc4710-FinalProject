@@ -266,6 +266,33 @@ public class userDAO
         return quotes;
     }
     
+    public bill getBill(int billId) throws SQLException {
+    	bill bills = null;
+        String sql = "SELECT * FROM bill WHERE billId = ?";
+         
+        connect_func();
+         
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setInt(1, billId);
+         
+        ResultSet resultSet = preparedStatement.executeQuery();
+         
+        if (resultSet.next()) {
+        	int quoteId = resultSet.getInt("quoteId");
+        	String clientEmail = resultSet.getString("clientEmail");
+            Double price = resultSet.getDouble("price");
+            String note = resultSet.getString("note"); 
+            String status = resultSet.getString("status"); 
+            String current = resultSet.getString("current"); 
+            String time = resultSet.getString("time"); 
+
+            bills = new bill(billId, quoteId,  clientEmail,  price,  note,  status,  current);
+        }
+        resultSet.close();
+         
+        return bills;
+    }
+    
     
     public void denyQuote(quote quotes, String currentUser) throws SQLException {
     	String sql = "update Quote set status=?, note=?, time=? where quoteId=?";
@@ -438,7 +465,7 @@ public class userDAO
 	            String s = resultSet.getString("status"); 
 	            String current = resultSet.getString("current"); 
 	             
-	            quote quote = new quote(quoteId, clientEmail,price, timeFrame, note,  s,  current);
+	            quote quote = new quote(quoteId, clientEmail, price, timeFrame, note,  s,  current);
 	            listQuote.add(quote);
 	        }        
 	        resultSet.close();
@@ -446,6 +473,59 @@ public class userDAO
     	}
         
         return listQuote;
+    }
+    
+    public List<bill> listBills(String email, String status) throws SQLException {
+    	List<bill> listBill = new ArrayList<bill>();         
+    	
+    	if (email.equals("davidsmith@treecutters.com")) {
+    		String sql = "SELECT * FROM bill WHERE status = ?";
+	    	connect_func();
+	    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+	        preparedStatement.setString(1, status);
+	        ResultSet resultSet = preparedStatement.executeQuery();
+	        
+	        while (resultSet.next()) {
+	        	int billId = resultSet.getInt("billId");
+	        	int quoteId = resultSet.getInt("quoteId");
+	            String clientEmail = resultSet.getString("clientEmail");
+	            Double price = resultSet.getDouble("price");
+	            String note = resultSet.getString("note"); 
+	            String s = resultSet.getString("status"); 
+	            String current = resultSet.getString("current"); 
+	             
+	            bill bill = new bill(billId, quoteId, clientEmail,price, note,  s,  current);
+	            listBill.add(bill);
+	        }        
+	        resultSet.close();
+	        disconnect();  
+    	}
+    	
+    	else {
+	    	String sql = "SELECT * FROM bill WHERE clientEmail = ? and status = ?";
+	    	connect_func();
+	    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+	        preparedStatement.setString(1, email);
+	        preparedStatement.setString(2, status);
+	        ResultSet resultSet = preparedStatement.executeQuery();
+	        
+	        while (resultSet.next()) {
+	        	int billId = resultSet.getInt("billId");
+	        	int quoteId = resultSet.getInt("quoteId");
+	            String clientEmail = resultSet.getString("clientEmail");
+	            Double price = resultSet.getDouble("price");
+	            String note = resultSet.getString("note"); 
+	            String s = resultSet.getString("status"); 
+	            String current = resultSet.getString("current"); 
+	             
+	            bill bill = new bill(billId, quoteId, clientEmail,price, note,  s,  current);
+	            listBill.add(bill);
+	        }        
+	        resultSet.close();
+	        disconnect();  
+    	}
+        
+        return listBill;
     }
     
     public boolean checkEmail(String email) throws SQLException {
@@ -569,11 +649,13 @@ public class userDAO
 					        ("CREATE TABLE if not exists Bill( " +
 					        	"billId INTEGER NOT NULL AUTO_INCREMENT, "+
 					        	"quoteId INTEGER NOT NULL, "+
-					        	"email VARCHAR(50) NOT NULL, "+
+					        	"clientEmail VARCHAR(50) NOT NULL, "+
 					        	"price DOUBLE NOT NULL, "+
 					        	"note VARCHAR(255), "+
+					        	"current VARCHAR(255) NOT NULL, "+
 					        	"status VARCHAR(8) NOT NULL DEFAULT 'open', "+
-					        	"CHECK (status in ('open', 'accepted', 'rejected')), "+
+					        	"time VARCHAR(255) NOT NULL, "+
+					        	"CHECK (status in ('open', 'accepted')), "+
 					        	"PRIMARY KEY(billId), "+
 					        	"FOREIGN KEY (quoteId) REFERENCES Quote(quoteId) "+");"),
 					        
@@ -660,17 +742,17 @@ public class userDAO
         					"('2023-10-24 10:23:17', 5,'davidsmith@treecutters.com', 450, 'friday', 'def', 'open'),"+
         					"('2023-10-26 12:12:12', 5,'andi@gmail.com', 450, 'friday', 'bcd', 'rejected');"),
 
-        					("insert into Bill(quoteId, email, price, note, status)"+
-					 "values (1, 'tatum@gmail.com', 300, 'abc', 'accepted'),"+
-							"(2, 'alvaro@gmail.com', 400, 'def', 'accepted'),"+
-							"(6, 'reid@gmail.com', 300, 'pqr', 'open'),"+
-							"(9, 'sonny@gmail.com', 300, 'yza', 'accepted'),"+
-							"(15, 'andi@gmail.com', 200, 'bcd', 'rejected'),"+
-							"(10, 'sonny@gmail.com', 600, 'yza', 'accepted'),"+
-							"(11, 'margo@gmail.com', 300, 'yza', 'rejected'),"+
-							"(12, 'ray@gmail.com', 200, 'yza', 'accepted'),"+
-							"(13, 'alvaro@gmail.com', 250, 'def', 'open'),"+
-							"(14, 'tatum@gmail.com', 250, 'def', 'accepted');"),        					
+        					("insert into Bill(time, quoteId, clientEmail, price, note, status, current)"+
+					 "values ('2023-09-12 08:03:03', 1, 'tatum@gmail.com', 300, 'abc', 'accepted', 'tatum@gmail.com'),"+
+							"('2023-09-13 08:03:03', 2, 'alvaro@gmail.com', 400, 'def', 'accepted', 'alvaro@gmail.com'),"+
+							"('2023-09-14 08:03:03', 6, 'reid@gmail.com', 300, 'pqr', 'open', 'davidsmith@treecutters.com'),"+
+							"('2023-09-15 08:03:03', 9, 'sonny@gmail.com', 300, 'yza', 'accepted', 'sonny@gmail.com'),"+
+							"('2023-09-16 08:03:03', 15, 'andi@gmail.com', 200, 'bcd', 'open', 'davidsmith@treecutters.com'),"+
+							"('2023-09-17 08:03:03', 10, 'sonny@gmail.com', 600, 'yza', 'accepted', 'sonny@gmail.com'),"+
+							"('2023-09-18 08:03:03', 11, 'margo@gmail.com', 300, 'yza', 'open', 'margo@gmail.com'),"+
+							"('2023-09-19 08:03:03', 12, 'ray@gmail.com', 200, 'yza', 'accepted', 'ray@gmail.com'),"+
+							"('2023-09-20 08:03:03', 13, 'alvaro@gmail.com', 250, 'def', 'open', 'alvaro@gmail.com'),"+
+							"('2023-09-21 08:03:03', 14, 'tatum@gmail.com', 250, 'def', 'accepted', 'tatum@gmail.com');"),        					
 
         					("insert into BillHistory(time, billId, quoteId, email, price, note, status)"+
         			 "values ('2023-10-04 08:03:03', 1, 1,'davidsmith@treecutters.com', 400, 'abc', 'open'),"+

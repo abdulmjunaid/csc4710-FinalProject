@@ -135,7 +135,7 @@
     function replyButton(){
     	var reply = document.createElement("input");
     	reply.setAttribute("type", "submit");
-    	reply.setAttribute("value", "Review Request")
+    	reply.setAttribute("value", "Reply")
     	
     	var table=document.getElementById("openQuotes");
     	var r=1; //start counting rows in table
