@@ -354,7 +354,7 @@ public class userDAO
         preparedStatement.setString(1, "accepted");
         preparedStatement.setString(2, "paid by " + currentUser);
         preparedStatement.setString(3, bills.getTime());
-        preparedStatement.setInt(4, bills.getQuoteId());
+        preparedStatement.setInt(4, bills.getBillId());
         preparedStatement.executeUpdate();
         preparedStatement.close();    
         
@@ -364,6 +364,61 @@ public class userDAO
 		preparedStatement.setString(2, "accepted");
 		preparedStatement.setDouble(3, bills.getPrice());
 		preparedStatement.setString(4, "paid by " + currentUser);
+		preparedStatement.setString(5, bills.getTime());
+		preparedStatement.setInt(6, bills.getQuoteId());
+		preparedStatement.setInt(7, bills.getBillId());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void rejectBill(bill bills, String currentUser) throws SQLException {
+    	String sql = "update Bill set status=?, note=?, time=?, current=? where billId=?";
+        connect_func();
+        System.out.println("test");
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "open");
+        preparedStatement.setString(2, bills.getNote());
+        preparedStatement.setString(3, bills.getTime());
+        preparedStatement.setString(4, "davidsmith@treecutters.com");
+        preparedStatement.setInt(5, bills.getBillId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();    
+        
+        sql = "insert into BillHistory(email, status, price, note, time, quoteId, billId) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, currentUser);
+		preparedStatement.setString(2, "open");
+		preparedStatement.setDouble(3, bills.getPrice());
+		preparedStatement.setString(4, bills.getNote());
+		preparedStatement.setString(5, bills.getTime());
+		preparedStatement.setInt(6, bills.getQuoteId());
+		preparedStatement.setInt(7, bills.getBillId());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void replyBill(bill bills, String currentUser) throws SQLException {
+    	String sql = "update Bill set status=?, note=?, time=?, current=?, price=? where billId=?";
+        connect_func();
+        System.out.println("test");
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, "open");
+        preparedStatement.setString(2, bills.getNote());
+        preparedStatement.setString(3, bills.getTime());
+        preparedStatement.setString(4, bills.getClientEmail());
+        preparedStatement.setDouble(5, bills.getPrice());
+        preparedStatement.setInt(6, bills.getBillId());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();    
+        
+        sql = "insert into BillHistory(email, status, price, note, time, quoteId, billId) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, currentUser);
+		preparedStatement.setString(2, "open");
+		preparedStatement.setDouble(3, bills.getPrice());
+		preparedStatement.setString(4, bills.getNote());
 		preparedStatement.setString(5, bills.getTime());
 		preparedStatement.setInt(6, bills.getQuoteId());
 		preparedStatement.setInt(7, bills.getBillId());

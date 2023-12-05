@@ -38,7 +38,7 @@
     <div class="form-container">
         <h1>Reject Bill</h1>
         
-        <form action="rejectBillPage" method="post">
+        <form action="rejectBill" method="post">
         	<label for="quoteId">Bill ID: </label>
             <input readonly value="${listBill.billId}" type="text" name="billId" id="billId" required><br><br>
         	<label for="quoteId">Quote ID: </label>

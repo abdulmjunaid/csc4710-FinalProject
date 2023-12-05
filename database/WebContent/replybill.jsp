@@ -38,7 +38,7 @@
     <div class="form-container">
         <h1>Reply to Bill</h1>
         
-        <form action="replyBillPage" method="post">
+        <form action="replyBill" method="post">
         	<label for="quoteId">Bill ID: </label>
             <input readonly value="${listBill.billId}" type="text" name="billId" id="billId" required><br><br>
         	<label for="quoteId">Quote ID: </label>

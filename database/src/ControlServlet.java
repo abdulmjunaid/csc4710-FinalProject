@@ -122,6 +122,12 @@ public class ControlServlet extends HttpServlet {
         	 case "/payBill":
         		 payBill(request, response);
         		 break;
+        	 case "/rejectBill":
+        		 rejectBill(request, response);
+        		 break;
+        	 case "/replyBill":
+        		 replyBill(request, response);
+        		 break;
         		 
 	    	}
         	
@@ -237,7 +243,33 @@ public class ControlServlet extends HttpServlet {
 	    	bills.setTime(LocalTime.now().toString());
 			userDAO.payBill(bills, currentUser);
 			
-			quotesPage(request, response, "");
+			billsPage(request, response, "");
+	    }
+	    
+	    private void rejectBill(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
+	    	System.out.println("reject bill");
+	    	int billId = Integer.valueOf(request.getParameter("billId"));
+	    	String note = String.valueOf(request.getParameter("note"));
+	    	bill bills = userDAO.getBill(billId);
+	    	bills.setNote(note);
+	    	bills.setTime(LocalTime.now().toString());
+			userDAO.rejectBill(bills, currentUser);
+			
+			billsPage(request, response, "");
+	    }
+	    
+	    private void replyBill(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException{
+	    	System.out.println("reject bill");
+	    	int billId = Integer.valueOf(request.getParameter("billId"));
+	    	Double price = Double.valueOf(request.getParameter("price"));
+	    	String note = String.valueOf(request.getParameter("note"));
+	    	bill bills = userDAO.getBill(billId);
+	    	bills.setNote(note);
+	    	bills.setPrice(price);
+	    	bills.setTime(LocalTime.now().toString());
+			userDAO.replyBill(bills, currentUser);
+			
+			billsPage(request, response, "");
 	    }
 	    
 	    private void sendQuotePage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
