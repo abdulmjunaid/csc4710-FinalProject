@@ -41,7 +41,7 @@
 		            	<td>	Price: ${listBill.price}</td>
 		            </tr>
 	    			<tr>
-		            	<td>	Note: ${listBill.status}</td>
+		            	<td>	Note: ${listBill.note}</td>
 		            </tr>
 		            <tr>
 		            	<td> <br></td>

@@ -34,6 +34,33 @@
 	</form>
     <h1>${firstName} Bills</h1>
     
+    <table id=issueBill name=issueBill>
+    <caption><h2>Issue Bill</h2></caption>
+        <tr>
+        	<th>Quote ID</th>
+            <th>Email</th>
+            <th>Price</th>
+            <th>Timeframe</th>
+            <th>Note</th>
+            <th>Status</th>
+            <th>Current</th>
+            <th>Reply</th>
+        </tr>
+        <c:forEach var="quote" items="${listIssueBills}">
+        <form action="issueBillPage" id="${quote.quoteId}" method="post">
+            <tr>
+            	<td><input readonly value="${quote.quoteId}" type="text" name="quoteId" id="quoteId" required></td>
+                <td>${quote.clientEmail}</td>
+                <td>${quote.price}</td>
+                <td>${quote.timeFrame}</td>
+                <td>${quote.note}</td>
+                <td>${quote.status}</td>
+                <td>${quote.current}</td>
+                <td><input type="submit" value="Issue Bill"></td>    
+            </tr>
+        </form>
+        </c:forEach>
+    </table>
 	
     <table id=openBills name=openBills>
     <caption><h2>List of Open Bills</h2></caption>

@@ -239,6 +239,50 @@ public class userDAO
         return quoteId;
     }
     
+    public int issueBill(quote quotes, String currentUser) throws SQLException {
+    	int billId;
+    	connect_func(); 
+    	System.out.println("1");
+		String sql = "insert into Bill(time, quoteId, clientEmail, price, note, status, current) values (?, ?, ?, ?, ?, ?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, quotes.getTime());
+			preparedStatement.setInt(2, quotes.getQuoteId());
+			preparedStatement.setString(3, quotes.getClientEmail());
+			preparedStatement.setDouble(4, quotes.getPrice());
+			preparedStatement.setString(5, quotes.getNote());
+			preparedStatement.setString(6, "open");
+			preparedStatement.setString(7, quotes.getClientEmail());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+        System.out.println("2");
+        sql = "SELECT billId FROM bill WHERE clientEmail = ? and time = ?";
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, quotes.getClientEmail());
+        preparedStatement.setString(2, quotes.getTime());
+        ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.next();
+        billId = resultSet.getInt("billId");
+        resultSet.close();
+        bill bills = getBill(billId);
+        
+        sql = "insert into BillHistory(email, status, price, note, time, quoteId, billId) values (?, ?, ?, ?, ?, ?, ?)";
+			preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, currentUser);
+			preparedStatement.setString(2, "open");
+			preparedStatement.setDouble(3, bills.getPrice());
+			preparedStatement.setString(4, bills.getNote());
+			preparedStatement.setString(5, quotes.getTime());
+			preparedStatement.setInt(6, bills.getQuoteId());
+			preparedStatement.setInt(7, bills.getBillId());
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+        System.out.println("3");
+        return billId;
+    }
+    
     public quote getQuote(int quoteId) throws SQLException {
     	quote quotes = null;
         String sql = "SELECT * FROM Quote WHERE quoteId = ?";
@@ -349,10 +393,13 @@ public class userDAO
     public void payBill(bill bills, String currentUser) throws SQLException {
     	String sql = "update Bill set status=?, note=?, time=? where billId=?";
         connect_func();
+        user client = getUser(currentUser);
+        String card = client.getCreditCard();
+        String last4 = card.substring(card.length() - 4);
         
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, "accepted");
-        preparedStatement.setString(2, "paid by " + currentUser);
+        preparedStatement.setString(2, "paid using card ending in " + last4);
         preparedStatement.setString(3, bills.getTime());
         preparedStatement.setInt(4, bills.getBillId());
         preparedStatement.executeUpdate();
@@ -609,6 +656,34 @@ public class userDAO
         return listBill;
     }
     
+    public List<quote> listPendingQuotes() throws SQLException {
+    	List<quote> listQuote = new ArrayList<quote>();         
+    	
+		String sql = "SELECT * FROM quote WHERE quoteId NOT IN (\n"
+				+ "    SELECT quoteId FROM bill\n"
+				+ ") and status = 'accepted';";
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        
+        while (resultSet.next()) {
+        	int quoteId = resultSet.getInt("quoteId");
+            String clientEmail = resultSet.getString("clientEmail");
+            Double price = resultSet.getDouble("price");
+            String timeFrame = resultSet.getString("timeFrame");
+            String note = resultSet.getString("note"); 
+            String s = resultSet.getString("status"); 
+            String current = resultSet.getString("current"); 
+             
+            quote quote = new quote(quoteId, clientEmail,price, timeFrame, note,  s,  current);
+            listQuote.add(quote);
+        }        
+        resultSet.close();
+        disconnect();  
+        
+        return listQuote;
+    }
+    
     public boolean checkEmail(String email) throws SQLException {
     	boolean checks = false;
     	String sql = "SELECT * FROM User WHERE email = ?";
@@ -788,7 +863,7 @@ public class userDAO
         					("insert into Quote(time, clientEmail, price, timeFrame, note, status, current)"+
         			 "values ('2023-09-12 08:03:03', 'tatum@gmail.com', 300, 'monday', 'abc', 'open', 'tatum@gmail.com'),"+
         					"('2023-09-29 08:03:03', 'alvaro@gmail.com', 400, 'tuesday and thursday', 'def', 'accepted', 'alvaro@gmail.com'),"+
-        					"('2023-09-16 08:03:03', 'stella@gmail.com', 200, 'friday', 'ghi', 'rejected', 'stella@gmail.com'),"+
+        					"('2023-09-16 08:03:03', 'stella@gmail.com', 200, 'friday', 'ghi', 'accepted', 'stella@gmail.com'),"+
         					"('2023-09-22 08:03:03', 'stella@gmail.com', 200, 'tuesday', 'jkl', 'open', 'davidsmith@treecutters.com'),"+
         					"('2023-08-21 08:03:03', 'andi@gmail.com', 400, 'thursday and friday', 'mno', 'rejected', 'andi@gmail.com'),"+
         					"('2023-07-19 08:03:03', 'reid@gmail.com', 300, 'tuesday', 'pqr', 'open', 'reid@gmail.com'),"+
