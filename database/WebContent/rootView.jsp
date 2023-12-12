@@ -37,19 +37,23 @@
                 <th>Credit Card</th>
                 <th>Phone Number</th>
                 <th>Password</th>
+                <th>Statistics</th>
 
             </tr>
             <c:forEach var="users" items="${listUser}">
+            <form action="statistics" id="${users.email}" method="post">
                 <tr style="text-align:center">
                     <td><c:out value="${users.role}" /></td>
-                    <td><c:out value="${users.email}" /></td>
+                    <td><input readonly value="${users.email}" type="text" name="email" id="email" required></td>
                     <td><c:out value="${users.firstName}" /></td>
                     <td><c:out value="${users.lastName}" /></td>
                     <td><c:out value= "${users.adress_street_num} ${users.adress_street} ${users.adress_city} ${users.adress_state} ${users.adress_zip_code}" /></td>
                     <td><c:out value="${users.creditCard}"/></td>
                     <td><c:out value="${users.phoneNumber}" /></td>
                     <td><c:out value="${users.password}" /></td>
+                    <td><input type="submit" value="View Statistics"></td> 
                 </tr>
+            </form>
             </c:forEach>
         </table>
 	</div>
@@ -85,7 +89,7 @@
                 <th>Phone Number</th>
 
             </tr>
-            <c:forEach var="client" items="${easyClientList}">
+            <c:forEach var="client" items="${easyClients}">
                 <tr style="text-align:center">
                     <td><c:out value="${client.email}" /></td>
                     <td><c:out value="${client.firstName}" /></td>

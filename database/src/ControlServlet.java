@@ -134,6 +134,8 @@ public class ControlServlet extends HttpServlet {
         	 case "/issueBill":
         		 issueBill(request, response);
         		 break;
+        	 case "/statistics":
+        		 statistics(request, response, "");
         		 
 	    	}
         	
@@ -166,6 +168,7 @@ public class ControlServlet extends HttpServlet {
 			request.setAttribute("overdueBills", userDAO.overdueBills());
 			request.setAttribute("badClients", userDAO.BadClients());
 			request.setAttribute("goodClients", userDAO.GoodClients());
+			request.setAttribute("easyClients", userDAO.listEasyClients());
 	    	request.getRequestDispatcher("rootView.jsp").forward(request, response);
 	    }
 	    
@@ -387,6 +390,22 @@ public class ControlServlet extends HttpServlet {
 	    	
 	    }
 	    
+	    private void statistics(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
+	    	System.out.println("statistics");
+	    	System.out.println();
+	    	session = request.getSession();
+	    	String email = String.valueOf(request.getParameter("email"));
+	    	user client = userDAO.getUser(email);
+	    	session.setAttribute("firstName", client.getFirstName());
+	    	session.setAttribute("lastName", client.getLastName());
+			session.setAttribute("email", email);
+			session.setAttribute("treeStats", userDAO.treeDate(email));
+			session.setAttribute("totalDueAmount", userDAO.totalDueAmount(email));
+			session.setAttribute("totalPaidAmount", userDAO.totalPaidAmount(email));
+	    	request.getRequestDispatcher("statistics.jsp").forward(request, response);
+	    	
+	    }
+	    
 	    private void reviewBillPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
 	    	System.out.println("review bill");
 	    	System.out.println();
@@ -439,6 +458,7 @@ public class ControlServlet extends HttpServlet {
 	    		request.getRequestDispatcher("activitypage.jsp").forward(request, response);		 			 
 	    	}
 	    }
+	    
 	    
 	    protected void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 	    	 String email = request.getParameter("email");

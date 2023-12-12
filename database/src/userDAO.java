@@ -1062,6 +1062,132 @@ public class userDAO
         return listUser;
     }
     
+    public List<tree> treeDate(String email) throws SQLException {
+        List<tree> listTree = new ArrayList<tree>();        
+        String sql = "with firstBill as(\n"
+        		+ "    SELECT bh.*\n"
+        		+ "    FROM BillHistory bh\n"
+        		+ "    JOIN (\n"
+        		+ "        SELECT billId, MIN(time) AS firstEntryTime\n"
+        		+ "        FROM BillHistory\n"
+        		+ "        GROUP BY billId\n"
+        		+ "    ) firstEntries ON bh.billId = firstEntries.billId AND bh.time = firstEntries.firstEntryTime)\n"
+        		+ "select t.*, fb.time\n"
+        		+ "from tree t, firstBill fb, quote q\n"
+        		+ "where t.quoteId = fb.quoteId and q.quoteId = t.quoteId and q.clientEmail = (?)";      
+        connect_func();      
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, email);
+        ResultSet resultSet = preparedStatement.executeQuery();
+         
+        while (resultSet.next()) {
+        	int treeId = resultSet.getInt("treeId");
+        	int quoteId = resultSet.getInt("quoteId");
+        	String firstPic = resultSet.getString("firstPic");
+        	String secondPic = resultSet.getString("secondPic");
+        	String thirdPic = resultSet.getString("thirdPic");
+        	Double size = resultSet.getDouble("size");
+        	Double height = resultSet.getDouble("height");
+        	Double distance = resultSet.getDouble("distance");
+        	String date = resultSet.getString("time");
+
+             
+            tree trees = new tree(treeId,  quoteId,  firstPic,  secondPic,  thirdPic,  size,  height,  distance, date);
+            listTree.add(trees);
+        }        
+        resultSet.close();
+        disconnect();        
+        return listTree;
+    }
+    
+    public Double totalDueAmount(String email) throws SQLException {
+        Double totalDueAmount = 0.0;      
+        String sql = "select sum(b.price)\n"
+        		+ "from bill b\n"
+        		+ "where clientEmail = (?)";      
+        connect_func();      
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, email);
+        ResultSet resultSet = preparedStatement.executeQuery();
+         
+        while (resultSet.next()) {
+            totalDueAmount = resultSet.getDouble("sum(b.price)");
+        }        
+        resultSet.close();
+        disconnect();        
+        return totalDueAmount;
+    }
+    
+    public Double totalPaidAmount(String email) throws SQLException {
+        Double totalPaidAmount = 0.0;      
+        String sql = "select sum(b.price)\n"
+        		+ "from bill b\n"
+        		+ "where clientEmail = (?) and status = 'accepted' ";      
+        connect_func();      
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, email);
+        ResultSet resultSet = preparedStatement.executeQuery();
+         
+        while (resultSet.next()) {
+        	totalPaidAmount = resultSet.getDouble("sum(b.price)");
+        }        
+        resultSet.close();
+        disconnect();        
+        return totalPaidAmount;
+    }
+    
+    public List<user> listEasyClients() throws SQLException {
+        List<user> listUser = new ArrayList<user>();        
+        String sql = "with QuoteCount as(\n"
+        		+ "	Select distinct qh.quoteId, round((count(qh.quoteId)/15)) c\n"
+        		+ "    from quote q, quoteHistory qh\n"
+        		+ "    group by qh.quoteId\n"
+        		+ "),\n"
+        		+ "EasyQuotes as(\n"
+        		+ "	Select distinct q.*, c\n"
+        		+ "    from quote q, QuoteCount qc\n"
+        		+ "    where (q.quoteId = qc.quoteId and q.status = 'accepted' and qc.c = 3) or\n"
+        		+ "    (q.quoteId = qc.quoteId and q.status = 'open' and qc.c < 3)\n"
+        		+ "),\n"
+        		+ "BadQuotes as(\n"
+        		+ "	Select distinct q.*, c\n"
+        		+ "    from quote q, QuoteCount qc\n"
+        		+ "    where (q.quoteId = qc.quoteId and q.status = 'accepted' and qc.c > 3) or\n"
+        		+ "    (q.quoteId = qc.quoteId and q.status = 'open' and qc.c >= 3) or\n"
+        		+ "    (q.quoteId = qc.quoteId and q.status = 'rejected')\n"
+        		+ ")\n"
+        		+ "Select distinct u.* \n"
+        		+ "from user u, EasyQuotes eq, BadQuotes bq\n"
+        		+ "where u.email = eq.clientEmail and u.email not in \n"
+        		+ "(Select clientEmail\n"
+        		+ "from BadQuotes);";      
+        connect_func();      
+        statement = (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+         
+        while (resultSet.next()) {
+        	String role = resultSet.getString("role");
+            String email = resultSet.getString("email");
+            String firstName = resultSet.getString("firstName");
+            String lastName = resultSet.getString("lastName");
+            String adress_street_num = resultSet.getString("adress_street_num"); 
+            String adress_street = resultSet.getString("adress_street"); 
+            String adress_city = resultSet.getString("adress_city"); 
+            String adress_state = resultSet.getString("adress_state"); 
+            String adress_zip_code = resultSet.getString("adress_zip_code"); 
+            String creditCard = resultSet.getString("creditCard");
+            String phoneNumber = resultSet.getString("phoneNumber");
+            String password = resultSet.getString("password");
+
+             
+            user users = new user(role, email,firstName, lastName, adress_street_num,  adress_street,  adress_city,  adress_state,  adress_zip_code, creditCard, phoneNumber, password);
+            listUser.add(users);
+        }        
+        resultSet.close();
+        disconnect();        
+        return listUser;
+    }
+    
     public void init() throws SQLException, FileNotFoundException, IOException{
     	connect_func();
         statement =  (Statement) connect.createStatement();
@@ -1181,7 +1307,7 @@ public class userDAO
         			 "values ('2023-09-12 08:03:03', 'tatum@gmail.com', 300, 'monday', 'abc', 'open', 'tatum@gmail.com'),"+
         					"('2023-09-29 08:03:03', 'alvaro@gmail.com', 400, 'tuesday and thursday', 'def', 'accepted', 'alvaro@gmail.com'),"+
         					"('2023-09-16 08:03:03', 'stella@gmail.com', 200, 'friday', 'ghi', 'rejected', 'stella@gmail.com'),"+
-        					"('2023-09-22 08:03:03', 'stella@gmail.com', 200, 'tuesday', 'jkl', 'open', 'davidsmith@treecutters.com'),"+
+        					"('2023-09-22 08:03:03', 'stella@gmail.com', 200, 'tuesday', 'jkl', 'open', 'stella@gmail.com'),"+
         					"('2023-08-21 08:03:03', 'andi@gmail.com', 400, 'thursday and friday', 'mno', 'accepted', 'andi@gmail.com'),"+
         					"('2023-07-19 08:03:03', 'reid@gmail.com', 300, 'tuesday', 'pqr', 'accepted', 'reid@gmail.com'),"+
         					"('2023-07-29 08:03:03', 'andi@gmail.com', 400, 'monday', 'stu', 'rejected', 'davidsmith@treecutters.com'),"+
@@ -1211,7 +1337,10 @@ public class userDAO
         					
 							"('2023-10-17 16:33:03', 4,'stella@gmail.com', 300, 'wednesday', 'yza', 'request'),"+
         					"('2023-10-18 18:43:34', 4,'davidsmith@treecutters.com', 400, 'tuesday', 'yza', 'open'),"+
-        					"('2023-10-19 16:33:03', 4,'stella@gmail.com', 300, 'wednesday', 'yza', 'open'),"+
+        					
+							"('2023-07-15 12:53:12', 6,'reid@gmail.com', 400, 'thursday and friday', 'mno', 'request'),"+
+							"('2023-07-16 09:43:12', 6,'davidsmith@treecutters.com', 400, 'thursday and friday', 'pqr', 'open'),"+
+							"('2023-07-19 12:53:12', 6,'reid@gmail.com', 400, 'thursday and friday', 'mno', 'accepted'),"+
         					
 							"('2023-10-22 09:09:23', 5,'andi@gmail.com', 300, 'friday', 'def', 'request'),"+
         					"('2023-10-23 04:52:12', 5,'davidsmith@treecutters.com', 500, 'thursday', 'def', 'open'),"+

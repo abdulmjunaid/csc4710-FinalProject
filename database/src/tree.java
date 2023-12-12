@@ -8,6 +8,7 @@ public class tree {
 	protected Double size;
 	protected Double height;
 	protected Double distance;
+	protected String date;
 	
 	
 	//constructors
@@ -35,6 +36,13 @@ public class tree {
     	this.size = size;
     	this.height = height;
     	this.distance = distance;
+    }
+    
+    public tree(int treeId, int quoteId, String firstPic, String secondPic, String thirdPic, Double size, Double height, Double distance, String date)
+    {
+    	this(quoteId, firstPic, secondPic, thirdPic, size, height, distance);
+    	this.treeId = treeId;
+    	this.date = date;
     }
     
     //getter and setter methods
@@ -92,6 +100,13 @@ public class tree {
     }
     public void setDistance(Double distance) {
     	this.distance = distance;
+    }
+    
+    public String getDate() {
+    	return this.date;
+    }
+    public void setDate(String date) {
+    	this.date = date;
     }
     
   }
