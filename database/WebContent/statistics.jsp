@@ -36,7 +36,7 @@
             <caption><h2>Statistics</h2></caption>
             </tr>
             	<th>Total Number of Trees</th>
-            	<th>sdaf</th>
+            	<th>${treeCount}</th>
             </tr>
             </tr>
             	<th>Total Due Amount</th>

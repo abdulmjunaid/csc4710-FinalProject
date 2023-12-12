@@ -1120,7 +1120,7 @@ public class userDAO
     
     public Double totalPaidAmount(String email) throws SQLException {
         Double totalPaidAmount = 0.0;      
-        String sql = "select sum(b.price)\n"
+        String sql = "select sum(b.price) p\n"
         		+ "from bill b\n"
         		+ "where clientEmail = (?) and status = 'accepted' ";      
         connect_func();      
@@ -1129,11 +1129,33 @@ public class userDAO
         ResultSet resultSet = preparedStatement.executeQuery();
          
         while (resultSet.next()) {
-        	totalPaidAmount = resultSet.getDouble("sum(b.price)");
+        	totalPaidAmount = resultSet.getDouble("p");
         }        
         resultSet.close();
         disconnect();        
         return totalPaidAmount;
+    }
+    
+    public int treeCount(String email) throws SQLException {
+        int treeCount = 0;      
+        String sql = "with TreeCount as(\n"
+        		+ "	select t.quoteId, count(t.treeId) c\n"
+        		+ "	from quote q, tree t\n"
+        		+ "	where q.quoteId = t.quoteId and q.clientEmail = (?)\n"
+        		+ "	group by t.quoteId)\n"
+        		+ "select sum(tc.c) t\n"
+        		+ "from TreeCount tc;";      
+        connect_func();      
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, email);
+        ResultSet resultSet = preparedStatement.executeQuery();
+         
+        while (resultSet.next()) {
+        	treeCount = resultSet.getInt("t");
+        }        
+        resultSet.close();
+        disconnect();        
+        return treeCount;
     }
     
     public List<user> listEasyClients() throws SQLException {
@@ -1396,14 +1418,28 @@ public class userDAO
         					
         					("insert into Tree(quoteId, firstPic, secondPic, thirdPic, size, height, distance)"+
         			 "values (1, 'picture3', 'picture2', 'picture3', 2, 5, 4), "+
+        							
         					"(2, 'picture3', 'picture3', 'picture3', 3, 3, 7), "+
+        					"(2, 'picture3', 'picture3', 'picture3', 1, 2, 2), "+
+        					"(2, 'picture3', 'picture3', 'picture3', 3, 6, 3), "+
+        					
         					"(3, 'picture3', 'picture3', 'picture3', 4, 4, 4), "+
+        					
         					"(4, 'picture3', 'picture3', 'picture3', 5, 5, 2), "+
+        					"(4, 'picture3', 'picture3', 'picture3', 5, 7, 2), "+
+        					
         					"(5, 'picture3', 'picture3', 'picture3', 7, 8, 4), "+
+        					
         					"(6, 'picture3', 'picture3', 'picture3', 2, 12, 7), "+
+        					
         					"(7, 'picture3', 'picture3', 'picture3', 8, 3, 8), "+
+        					"(7, 'picture3', 'picture3', 'picture3', 7, 9, 7), "+
+        					"(7, 'picture3', 'picture3', 'picture3', 3, 2, 1), "+
+        					
         					"(8, 'picture3', 'picture3', 'picture3', 3, 6, 3), "+
+        					
         					"(9, 'picture3', 'picture3', 'picture3', 8, 9, 2), "+
+        					
         					"(10, 'picture3', 'picture3', 'picture3', 9, 2, 8); ")
         			
         								 

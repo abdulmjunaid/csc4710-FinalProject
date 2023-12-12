@@ -402,6 +402,7 @@ public class ControlServlet extends HttpServlet {
 			session.setAttribute("treeStats", userDAO.treeDate(email));
 			session.setAttribute("totalDueAmount", userDAO.totalDueAmount(email));
 			session.setAttribute("totalPaidAmount", userDAO.totalPaidAmount(email));
+			session.setAttribute("treeCount", userDAO.treeCount(email));
 	    	request.getRequestDispatcher("statistics.jsp").forward(request, response);
 	    	
 	    }
