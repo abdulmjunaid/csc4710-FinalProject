@@ -159,6 +159,13 @@ public class ControlServlet extends HttpServlet {
 	    private void rootPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
 	    	System.out.println("root view");
 			request.setAttribute("listUser", userDAO.listAllUsers());
+			request.setAttribute("bigClientList", userDAO.listBigClients());
+			request.setAttribute("oneTreeQuotes", userDAO.oneTreeQuotes());
+			request.setAttribute("prospectiveClients", userDAO.prospectiveClients());
+			request.setAttribute("highestTrees", userDAO.highestTrees());
+			request.setAttribute("overdueBills", userDAO.overdueBills());
+			request.setAttribute("badClients", userDAO.BadClients());
+			request.setAttribute("goodClients", userDAO.GoodClients());
 	    	request.getRequestDispatcher("rootView.jsp").forward(request, response);
 	    }
 	    

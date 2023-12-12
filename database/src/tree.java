@@ -22,7 +22,7 @@ public class tree {
     public tree(int treeId, int quoteId, String firstPic, String secondPic, String thirdPic, Double size, Double height, Double distance)
     {
     	this(quoteId, firstPic, secondPic, thirdPic, size, height, distance);
-    	this.quoteId = quoteId;
+    	this.treeId = treeId;
     }
  
 
