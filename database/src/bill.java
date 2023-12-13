@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class bill {
 	protected int billId;
@@ -88,8 +91,9 @@ public class bill {
     public String getTime() {
     	return this.time;
     }
-    public void setTime(String time) {
-    	this.time = time;
+    public void setTime(LocalDateTime time) {
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    	this.time = dtf.format(time);
     }
     
     

@@ -395,7 +395,13 @@ public class userDAO
         connect_func();
         user client = getUser(currentUser);
         String card = client.getCreditCard();
-        String last4 = card.substring(card.length() - 4);
+        String last4;
+        try {
+        	last4 = card.substring(card.length() - 4);
+        }
+        catch(Exception e){
+        	last4 = "XXXX";
+        }
         
         preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
         preparedStatement.setString(1, "accepted");
@@ -1439,6 +1445,10 @@ public class userDAO
         					"(8, 'picture3', 'picture3', 'picture3', 3, 6, 3), "+
         					
         					"(9, 'picture3', 'picture3', 'picture3', 8, 9, 2), "+
+        					
+							"(13, 'picture3', 'picture3', 'picture3', 8, 3, 8), "+
+							"(13, 'picture3', 'picture3', 'picture3', 7, 9, 7), "+
+							"(13, 'picture3', 'picture3', 'picture3', 3, 2, 1), "+
         					
         					"(10, 'picture3', 'picture3', 'picture3', 9, 2, 8); ")
         			

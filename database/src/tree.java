@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;  
 
 public class tree {
 	protected int treeId;
@@ -105,8 +108,9 @@ public class tree {
     public String getDate() {
     	return this.date;
     }
-    public void setDate(String date) {
-    	this.date = date;
+    public void setDate(LocalDateTime date) {
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    	this.date = dtf.format(date);
     }
     
   }

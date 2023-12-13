@@ -1,5 +1,6 @@
 import java.io.IOException;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.io.PrintWriter;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -237,7 +238,7 @@ public class ControlServlet extends HttpServlet {
 	    	System.out.println("deny request");
 	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
 	    	quote quotes = userDAO.getQuote(quoteId);
-	    	quotes.setTime(LocalTime.now().toString());
+	    	quotes.setTime(LocalDateTime.now());
 			userDAO.denyQuote(quotes, currentUser);
 			
 			quotesPage(request, response, "");
@@ -247,7 +248,7 @@ public class ControlServlet extends HttpServlet {
 	    	System.out.println("accept request");
 	    	int quoteId = Integer.valueOf(request.getParameter("quoteId"));
 	    	quote quotes = userDAO.getQuote(quoteId);
-	    	quotes.setTime(LocalTime.now().toString());
+	    	quotes.setTime(LocalDateTime.now());
 			userDAO.acceptQuote(quotes, currentUser);
 			
 			quotesPage(request, response, "");
@@ -257,7 +258,7 @@ public class ControlServlet extends HttpServlet {
 	    	System.out.println("pay bill");
 	    	int billId = Integer.valueOf(request.getParameter("billId"));
 	    	bill bills = userDAO.getBill(billId);
-	    	bills.setTime(LocalTime.now().toString());
+	    	bills.setTime(LocalDateTime.now());
 			userDAO.payBill(bills, currentUser);
 			
 			billsPage(request, response, "");
@@ -269,7 +270,7 @@ public class ControlServlet extends HttpServlet {
 	    	String note = String.valueOf(request.getParameter("note"));
 	    	bill bills = userDAO.getBill(billId);
 	    	bills.setNote(note);
-	    	bills.setTime(LocalTime.now().toString());
+	    	bills.setTime(LocalDateTime.now());
 			userDAO.rejectBill(bills, currentUser);
 			
 			billsPage(request, response, "");
@@ -283,7 +284,7 @@ public class ControlServlet extends HttpServlet {
 	    	bill bills = userDAO.getBill(billId);
 	    	bills.setNote(note);
 	    	bills.setPrice(price);
-	    	bills.setTime(LocalTime.now().toString());
+	    	bills.setTime(LocalDateTime.now());
 			userDAO.replyBill(bills, currentUser);
 			
 			billsPage(request, response, "");
@@ -297,7 +298,7 @@ public class ControlServlet extends HttpServlet {
 	    	quote quote = userDAO.getQuote(quoteId);
 	    	quote.setNote(note);
 	    	quote.setPrice(price);
-	    	quote.setTime(LocalTime.now().toString());
+	    	quote.setTime(LocalDateTime.now());
 			userDAO.issueBill(quote, currentUser);
 			
 			billsPage(request, response, "");
@@ -352,7 +353,7 @@ public class ControlServlet extends HttpServlet {
 	    	quoteReq.setClientEmail(currentUser);
 	    	quoteReq.setStatus("request");
 	    	quoteReq.setCurrent("davidsmith@treecutters.com");
-	    	quoteReq.setTime(LocalTime.now().toString());
+	    	quoteReq.setTime(LocalDateTime.now());
 	    	quoteReq.setNote(note);
 	    	int quoteId = userDAO.submitRequest(quoteReq);
 	    	System.out.println(quoteId);
@@ -442,7 +443,7 @@ public class ControlServlet extends HttpServlet {
 	    	quotes.setPrice(price);
 	    	quotes.setTimeFrame(timeFrame);
 	    	quotes.setStatus("open");
-	    	quotes.setTime(LocalTime.now().toString());
+	    	quotes.setTime(LocalDateTime.now());
 	    	quotes.setNote(note);
 	    	
 	    	userDAO.submitQuote(quotes, currentUser);
